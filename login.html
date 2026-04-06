@@ -482,14 +482,24 @@ async function handleLogin() {
     }
 
     // Save session
-    localStorage.setItem('sb_session', JSON.stringify({
+    const sessionData = JSON.stringify({
       access_token: data.access_token,
       refresh_token: data.refresh_token,
       user: data.user
-    }));
+    });
+    localStorage.setItem('sb_session', sessionData);
+
+    // Verificar se foi salvo corretamente
+    const saved = localStorage.getItem('sb_session');
+    const parsed = saved ? JSON.parse(saved) : null;
+    if (!parsed?.access_token) {
+      showMessage('Erro ao salvar sessão. Tente novamente.', 'error');
+      setLoading('loginBtn', false);
+      return;
+    }
 
     showMessage('Login realizado! Redirecionando...', 'success');
-    setTimeout(() => window.location.href = 'index.html', 800);
+    setTimeout(() => window.location.href = 'index.html', 1000);
 
   } catch(e) {
     showMessage('Erro de conexão. Verifique a configuração do Supabase.', 'error');

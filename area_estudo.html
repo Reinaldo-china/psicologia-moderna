@@ -969,7 +969,11 @@ Responda a dúvida de forma clara e didática em HTML (<strong>, <ul>, <li>). Po
 // ═══════════════════════════════════════
 // INIT
 // ═══════════════════════════════════════
-initApp();
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initApp);
+} else {
+  initApp();
+}
 </script>
 
 </body>
