@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Linha do Tempo — História da Psicologia Moderna</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #12121a;
+    --border: #1e1e2a;
+    --text: #e8e6e0;
+    --text-dim: #8a8690;
+    --accent: #c9a84c;
+    --accent-dim: rgba(201,168,76,0.15);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    overflow: hidden;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  header {
+    padding: 36px 40px 20px;
+    border-bottom: 1px solid var(--border);
+    background: var(--bg);
+    flex-shrink: 0;
+    z-index: 100;
+  }
+
+  .btn-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 7px 16px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 500;
+    text-decoration: none;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-bottom: 16px;
+  }
+
+  .btn-back:hover {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .btn-back svg {
+    transition: transform 0.2s;
+  }
+
+  .btn-back:hover svg {
+    transform: translateX(-3px);
+  }
+
+  header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 28px;
+    font-weight: 400;
+    letter-spacing: -0.5px;
+    color: var(--accent);
+  }
+
+  header p {
+    font-size: 13px;
+    color: var(--text-dim);
+    margin-top: 6px;
+    font-weight: 300;
+  }
+
+  .controls {
+    display: flex;
+    gap: 8px;
+    margin-top: 16px;
+    flex-wrap: wrap;
+  }
+
+  .controls button {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    color: var(--text-dim);
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .controls button:hover, .controls button.active {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .chart-container {
+    padding: 0 40px 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+  }
+
+  .timeline-header {
+    display: flex;
+    align-items: flex-end;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 0 10px;
+    margin-bottom: 0;
+    min-width: fit-content;
+    height: 50px;
+    flex-shrink: 0;
+    position: sticky;
+    top: 0;
+    z-index: 50;
+  }
+
+  .label-col {
+    min-width: 260px;
+    max-width: 260px;
+    flex-shrink: 0;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1.5px;
+    padding-right: 16px;
+    font-weight: 500;
+    display: flex;
+    align-items: flex-end;
+  }
+
+  .timeline-col {
+    flex: 1;
+    position: relative;
+    min-width: 900px;
+    height: 100%;
+  }
+
+  .century-markers {
+    display: flex;
+    width: 100%;
+    height: 20px;
+  }
+
+  .century-mark {
+    font-size: 11px;
+    color: var(--text-dim);
+    position: absolute;
+    bottom: 0;
+    transform: translateX(-50%);
+    letter-spacing: 1px;
+    font-weight: 500;
+  }
+
+  .row {
+    display: flex;
+    align-items: center;
+    min-height: 32px;
+    border-bottom: 1px solid rgba(30,30,42,0.4);
+    transition: background 0.15s;
+    min-width: fit-content;
+    position: relative;
+  }
+
+  .row:hover {
+    background: rgba(201,168,76,0.04);
+  }
+
+  .row .name {
+    min-width: 260px;
+    max-width: 260px;
+    flex-shrink: 0;
+    font-size: 13px;
+    padding-right: 16px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-weight: 400;
+    color: var(--text);
+  }
+
+  .row .name .dates {
+    font-size: 11px;
+    color: var(--text-dim);
+    margin-left: 6px;
+    font-weight: 300;
+  }
+
+  .bar-area {
+    flex: 1;
+    position: relative;
+    height: 32px;
+    min-width: 900px;
+  }
+
+  .bar {
+    position: absolute;
+    height: 14px;
+    top: 9px;
+    border-radius: 7px;
+    cursor: pointer;
+    transition: all 0.2s;
+    opacity: 0.85;
+  }
+
+  .bar:hover {
+    opacity: 1;
+    height: 18px;
+    top: 7px;
+    filter: brightness(1.2);
+    box-shadow: 0 0 16px rgba(201,168,76,0.3);
+  }
+
+  .tooltip {
+    position: fixed;
+    background: #1a1a24;
+    border: 1px solid var(--accent);
+    border-radius: 8px;
+    padding: 12px 16px;
+    font-size: 13px;
+    pointer-events: none;
+    z-index: 200;
+    display: none;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.5);
+    max-width: 280px;
+  }
+
+  .tooltip .tt-name {
+    font-family: 'Playfair Display', serif;
+    font-size: 16px;
+    color: var(--accent);
+    margin-bottom: 4px;
+  }
+
+  .tooltip .tt-dates {
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+
+  .tooltip .tt-cat {
+    font-size: 11px;
+    color: var(--text);
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid var(--border);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .grid-line {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 1px;
+    background: var(--border);
+    opacity: 0.4;
+    pointer-events: none;
+  }
+
+  .stats {
+    padding: 0 40px 10px;
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 300;
+    flex-shrink: 0;
+    background: var(--bg);
+    z-index: 99;
+  }
+
+  /* Category colors */
+  .cat-filosofo { background: linear-gradient(90deg, #6366f1, #818cf8); }
+  .cat-fisiologo { background: linear-gradient(90deg, #14b8a6, #5eead4); }
+  .cat-psicologo { background: linear-gradient(90deg, #c9a84c, #e2c97a); }
+  .cat-medico { background: linear-gradient(90deg, #f43f5e, #fb7185); }
+  .cat-naturalista { background: linear-gradient(90deg, #22c55e, #86efac); }
+  .cat-matematico { background: linear-gradient(90deg, #a78bfa, #c4b5fd); }
+  .cat-sociologo { background: linear-gradient(90deg, #f97316, #fdba74); }
+  .cat-outro { background: linear-gradient(90deg, #64748b, #94a3b8); }
+
+  .legend {
+    display: flex;
+    gap: 16px;
+    padding: 8px 40px 10px;
+    flex-wrap: wrap;
+    flex-shrink: 0;
+    background: var(--bg);
+    z-index: 99;
+  }
+
+  .legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 0.8px;
+  }
+
+  .legend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+  }
+
+  /* Scrollable rows area */
+  #rows {
+    overflow-y: auto;
+    overflow-x: visible;
+    flex: 1;
+    min-height: 0;
+  }
+
+  @media (max-width: 768px) {
+    header { padding: 24px 16px 16px; }
+    header h1 { font-size: 22px; }
+    .chart-container { padding: 0 16px; }
+    .label-col, .row .name { min-width: 180px; max-width: 180px; }
+    .legend, .stats { padding-left: 16px; padding-right: 16px; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <a class="btn-back" href="index.html">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    Voltar à página principal
+  </a>
+  <h1>História da Psicologia Moderna</h1>
+  <p>Gráfico de Gantt — Vida dos pensadores mencionados no livro de Schultz & Schultz</p>
+  <div class="controls" id="controls"></div>
+</header>
+
+<div class="legend" id="legend"></div>
+<div class="stats" id="stats"></div>
+
+<div class="chart-container" id="chartContainer">
+  <div class="timeline-header">
+    <div class="label-col">Pensador</div>
+    <div class="timeline-col" id="headerTimeline"></div>
+  </div>
+  <div id="rows"></div>
+</div>
+
+<div class="tooltip" id="tooltip">
+  <div class="tt-name"></div>
+  <div class="tt-dates"></div>
+  <div class="tt-cat"></div>
+</div>
+
+<script>
+const data = [
+  // Filósofos
+  { name: "Copérnico", birth: 1473, death: 1543, cat: "filosofo" },
+  { name: "Juan Luis Vives", birth: 1492, death: 1540, cat: "filosofo" },
+  { name: "Juan Huarte", birth: 1530, death: 1592, cat: "filosofo" },
+  { name: "Thomas Hobbes", birth: 1588, death: 1679, cat: "filosofo" },
+  { name: "René Descartes", birth: 1596, death: 1650, cat: "filosofo" },
+  { name: "John Locke", birth: 1632, death: 1704, cat: "filosofo" },
+  { name: "Gottfried W. Leibniz", birth: 1646, death: 1716, cat: "filosofo" },
+  { name: "George Berkeley", birth: 1685, death: 1753, cat: "filosofo" },
+  { name: "Immanuel Kant", birth: 1724, death: 1804, cat: "filosofo" },
+  { name: "James Mill", birth: 1773, death: 1836, cat: "filosofo" },
+  { name: "Johann F. Herbart", birth: 1776, death: 1841, cat: "filosofo" },
+  { name: "Auguste Comte", birth: 1798, death: 1857, cat: "filosofo" },
+  { name: "John Stuart Mill", birth: 1806, death: 1873, cat: "filosofo" },
+  { name: "Franz Brentano", birth: 1838, death: 1917, cat: "filosofo" },
+  { name: "John Dewey", birth: 1859, death: 1952, cat: "filosofo" },
+
+  // Fisiologistas / Médicos
+  { name: "Luigi Galvani", birth: 1737, death: 1798, cat: "fisiologo" },
+  { name: "Alessandro Volta", birth: 1745, death: 1829, cat: "fisiologo" },
+  { name: "Josef Gall", birth: 1758, death: 1828, cat: "fisiologo" },
+  { name: "Marshall Hall", birth: 1790, death: 1857, cat: "fisiologo" },
+  { name: "Pierre Flourens", birth: 1794, death: 1867, cat: "fisiologo" },
+  { name: "Ernst Weber", birth: 1795, death: 1878, cat: "fisiologo" },
+  { name: "Johannes Müller", birth: 1801, death: 1858, cat: "fisiologo" },
+  { name: "Hermann von Helmholtz", birth: 1821, death: 1894, cat: "fisiologo" },
+  { name: "Paul Broca", birth: 1824, death: 1880, cat: "fisiologo" },
+  { name: "Santiago Ramón y Cajal", birth: 1852, death: 1934, cat: "fisiologo" },
+
+  // Médicos / Psiquiatras
+  { name: "Franz Anton Mesmer", birth: 1734, death: 1815, cat: "medico" },
+  { name: "Philippe Pinel", birth: 1745, death: 1826, cat: "medico" },
+  { name: "Benjamín Rush", birth: 1745, death: 1813, cat: "medico" },
+  { name: "James Braid", birth: 1795, death: 1860, cat: "medico" },
+  { name: "Jean-Martin Charcot", birth: 1825, death: 1893, cat: "medico" },
+  { name: "Josef Breuer", birth: 1842, death: 1925, cat: "medico" },
+  { name: "Pierre Janet", birth: 1859, death: 1947, cat: "medico" },
+  { name: "Dorothea Dix", birth: 1802, death: 1887, cat: "medico" },
+
+  // Naturalistas / Evolucionistas
+  { name: "J.B. Lamarck", birth: 1744, death: 1829, cat: "naturalista" },
+  { name: "Charles Lyell", birth: 1797, death: 1875, cat: "naturalista" },
+  { name: "Charles Darwin", birth: 1809, death: 1882, cat: "naturalista" },
+  { name: "Herbert Spencer", birth: 1820, death: 1903, cat: "sociologo" },
+  { name: "Thomas H. Huxley", birth: 1825, death: 1895, cat: "naturalista" },
+  { name: "Samuel Butler", birth: 1835, death: 1902, cat: "naturalista" },
+  { name: "George J. Romanes", birth: 1848, death: 1894, cat: "naturalista" },
+  { name: "C. Lloyd Morgan", birth: 1852, death: 1936, cat: "naturalista" },
+
+  // Matemáticos / Físicos / Engenheiros
+  { name: "Isaac Newton", birth: 1642, death: 1727, cat: "matematico" },
+  { name: "Nevil Maskelyne", birth: 1732, death: 1811, cat: "matematico" },
+  { name: "F.W. Bessel", birth: 1784, death: 1846, cat: "matematico" },
+  { name: "Charles Babbage", birth: 1791, death: 1871, cat: "matematico" },
+  { name: "Ada Lovelace", birth: 1815, death: 1852, cat: "matematico" },
+  { name: "Adolph Quetelet", birth: 1796, death: 1874, cat: "matematico" },
+  { name: "Karl Pearson", birth: 1857, death: 1936, cat: "matematico" },
+  { name: "Ernst Mach", birth: 1838, death: 1916, cat: "matematico" },
+  { name: "Percy Bridgman", birth: 1882, death: 1961, cat: "matematico" },
+  { name: "Alan Turing", birth: 1912, death: 1954, cat: "matematico" },
+  { name: "Henry Hollerith", birth: 1859, death: 1929, cat: "matematico" },
+
+  // Psicólogos
+  { name: "Gustav T. Fechner", birth: 1801, death: 1887, cat: "psicologo" },
+  { name: "Francis Galton", birth: 1822, death: 1911, cat: "psicologo" },
+  { name: "Wilhelm Wundt", birth: 1832, death: 1920, cat: "psicologo" },
+  { name: "Carl Stumpf", birth: 1848, death: 1936, cat: "psicologo" },
+  { name: "G. Stanley Hall", birth: 1844, death: 1924, cat: "psicologo" },
+  { name: "William James", birth: 1842, death: 1910, cat: "psicologo" },
+  { name: "Hermann Ebbinghaus", birth: 1850, death: 1909, cat: "psicologo" },
+  { name: "Sigmund Freud", birth: 1856, death: 1939, cat: "psicologo" },
+  { name: "Alfred Binet", birth: 1857, death: 1911, cat: "psicologo" },
+  { name: "Christian von Ehrenfels", birth: 1859, death: 1932, cat: "psicologo" },
+  { name: "Jacques Loeb", birth: 1859, death: 1924, cat: "psicologo" },
+  { name: "Oswald Külpe", birth: 1862, death: 1915, cat: "psicologo" },
+  { name: "Hugo Münsterberg", birth: 1863, death: 1916, cat: "psicologo" },
+  { name: "Mary W. Calkins", birth: 1863, death: 1930, cat: "psicologo" },
+  { name: "Joseph Jastrow", birth: 1863, death: 1944, cat: "psicologo" },
+  { name: "James M. Cattell", birth: 1860, death: 1944, cat: "psicologo" },
+  { name: "James M. Baldwin", birth: 1861, death: 1934, cat: "psicologo" },
+  { name: "Henry Goddard", birth: 1866, death: 1957, cat: "psicologo" },
+  { name: "Charles H. Turner", birth: 1867, death: 1923, cat: "psicologo" },
+  { name: "E.B. Titchener", birth: 1867, death: 1927, cat: "psicologo" },
+  { name: "Lightner Witmer", birth: 1867, death: 1956, cat: "psicologo" },
+  { name: "J.R. Angell", birth: 1869, death: 1949, cat: "psicologo" },
+  { name: "R.S. Woodworth", birth: 1869, death: 1962, cat: "psicologo" },
+  { name: "Walter Dill Scott", birth: 1869, death: 1955, cat: "psicologo" },
+  { name: "Alfred Adler", birth: 1870, death: 1937, cat: "psicologo" },
+  { name: "William McDougall", birth: 1871, death: 1938, cat: "psicologo" },
+  { name: "Edwin B. Twitmyer", birth: 1873, death: 1943, cat: "psicologo" },
+  { name: "E.L. Thorndike", birth: 1874, death: 1949, cat: "psicologo" },
+  { name: "Helen B.T. Woolley", birth: 1874, death: 1947, cat: "psicologo" },
+  { name: "Carl Jung", birth: 1875, death: 1961, cat: "psicologo" },
+  { name: "John B. Watson", birth: 1878, death: 1958, cat: "psicologo" },
+  { name: "Lillian M. Gilbreth", birth: 1878, death: 1972, cat: "psicologo" },
+  { name: "Max Wertheimer", birth: 1880, death: 1943, cat: "psicologo" },
+  { name: "Clark L. Hull", birth: 1884, death: 1952, cat: "psicologo" },
+  { name: "Karen Horney", birth: 1885, death: 1952, cat: "psicologo" },
+  { name: "Kurt Koffka", birth: 1886, death: 1941, cat: "psicologo" },
+  { name: "Leta S. Hollingworth", birth: 1886, death: 1939, cat: "psicologo" },
+  { name: "E.C. Tolman", birth: 1886, death: 1959, cat: "psicologo" },
+  { name: "Wolfgang Köhler", birth: 1887, death: 1967, cat: "psicologo" },
+  { name: "Ivan Pavlov", birth: 1849, death: 1936, cat: "psicologo" },
+  { name: "Vladimir Bekhterev", birth: 1857, death: 1927, cat: "psicologo" },
+  { name: "Karl Lashley", birth: 1890, death: 1958, cat: "psicologo" },
+  { name: "Kurt Lewin", birth: 1890, death: 1947, cat: "psicologo" },
+  { name: "Mark A. May", birth: 1891, death: 1977, cat: "psicologo" },
+  { name: "Anna Freud", birth: 1895, death: 1982, cat: "psicologo" },
+  { name: "Jean Piaget", birth: 1896, death: 1980, cat: "psicologo" },
+  { name: "Mary Cover Jones", birth: 1896, death: 1987, cat: "psicologo" },
+  { name: "Carl Rogers", birth: 1902, death: 1987, cat: "psicologo" },
+  { name: "Horace Mann Bond", birth: 1904, death: 1972, cat: "psicologo" },
+  { name: "B.F. Skinner", birth: 1904, death: 1990, cat: "psicologo" },
+  { name: "Abraham Maslow", birth: 1908, death: 1970, cat: "psicologo" },
+  { name: "Anne Anastasi", birth: 1908, death: 2001, cat: "psicologo" },
+  { name: "Joseph Wolpe", birth: 1915, death: 1997, cat: "psicologo" },
+  { name: "Julian Rotter", birth: 1916, death: 2014, cat: "psicologo" },
+  { name: "Mamie Phipps Clark", birth: 1917, death: 1983, cat: "psicologo" },
+  { name: "George Miller", birth: 1920, death: 2012, cat: "psicologo" },
+  { name: "Albert Bandura", birth: 1925, death: 2021, cat: "psicologo" },
+  { name: "Ulric Neisser", birth: 1928, death: 2012, cat: "psicologo" },
+  { name: "Martin Seligman", birth: 1942, death: 2025, cat: "psicologo" },
+];
+
+const categories = {
+  filosofo: { label: "Filósofo", color: "#6366f1" },
+  fisiologo: { label: "Fisiologista", color: "#14b8a6" },
+  psicologo: { label: "Psicólogo", color: "#c9a84c" },
+  medico: { label: "Médico / Psiquiatra", color: "#f43f5e" },
+  naturalista: { label: "Naturalista", color: "#22c55e" },
+  matematico: { label: "Matemático / Físico", color: "#a78bfa" },
+  sociologo: { label: "Sociólogo", color: "#f97316" },
+};
+
+const MIN_YEAR = 1470;
+const MAX_YEAR = 2030;
+const RANGE = MAX_YEAR - MIN_YEAR;
+
+let activeFilter = "all";
+
+function pct(year) {
+  return ((year - MIN_YEAR) / RANGE) * 100;
+}
+
+// Build legend
+const legendEl = document.getElementById("legend");
+Object.entries(categories).forEach(([key, val]) => {
+  const item = document.createElement("div");
+  item.className = "legend-item";
+  item.innerHTML = `<div class="legend-dot" style="background:${val.color}"></div>${val.label}`;
+  legendEl.appendChild(item);
+});
+
+// Build controls
+const controlsEl = document.getElementById("controls");
+const allBtn = document.createElement("button");
+allBtn.textContent = "Todos";
+allBtn.className = "active";
+allBtn.onclick = () => { activeFilter = "all"; render(); };
+controlsEl.appendChild(allBtn);
+
+Object.entries(categories).forEach(([key, val]) => {
+  const btn = document.createElement("button");
+  btn.textContent = val.label;
+  btn.onclick = () => { activeFilter = key; render(); };
+  controlsEl.appendChild(btn);
+});
+
+// Sort buttons
+const sortBirth = document.createElement("button");
+sortBirth.textContent = "↑ Nascimento";
+sortBirth.onclick = () => { data.sort((a,b) => a.birth - b.birth); render(); };
+controlsEl.appendChild(sortBirth);
+
+const sortCat = document.createElement("button");
+sortCat.textContent = "↑ Categoria";
+sortCat.onclick = () => { data.sort((a,b) => a.cat.localeCompare(b.cat) || a.birth - b.birth); render(); };
+controlsEl.appendChild(sortCat);
+
+// Timeline header
+function renderHeader() {
+  const header = document.getElementById("headerTimeline");
+  header.innerHTML = "";
+  for (let y = 1500; y <= 2025; y += 50) {
+    const mark = document.createElement("div");
+    mark.className = "century-mark";
+    mark.style.left = pct(y) + "%";
+    mark.textContent = y;
+    header.appendChild(mark);
+  }
+}
+
+// Tooltip
+const tooltip = document.getElementById("tooltip");
+
+function showTooltip(e, d) {
+  const tt = tooltip;
+  tt.querySelector(".tt-name").textContent = d.name;
+  tt.querySelector(".tt-dates").textContent = `${d.birth} — ${d.death} (${d.death - d.birth} anos)`;
+  tt.querySelector(".tt-cat").textContent = categories[d.cat].label;
+  tt.style.display = "block";
+
+  const rect = tt.getBoundingClientRect();
+  let x = e.clientX + 16;
+  let y = e.clientY - 10;
+  if (x + rect.width > window.innerWidth) x = e.clientX - rect.width - 16;
+  if (y + rect.height > window.innerHeight) y = e.clientY - rect.height;
+  tt.style.left = x + "px";
+  tt.style.top = y + "px";
+}
+
+function hideTooltip() {
+  tooltip.style.display = "none";
+}
+
+function render() {
+  const filtered = activeFilter === "all" ? data : data.filter(d => d.cat === activeFilter);
+
+  // Update button states
+  controlsEl.querySelectorAll("button").forEach(btn => {
+    btn.classList.remove("active");
+    if (activeFilter === "all" && btn.textContent === "Todos") btn.classList.add("active");
+    const catEntry = Object.entries(categories).find(([k,v]) => v.label === btn.textContent);
+    if (catEntry && catEntry[0] === activeFilter) btn.classList.add("active");
+  });
+
+  document.getElementById("stats").textContent = `${filtered.length} pensadores exibidos · ${MIN_YEAR}–${MAX_YEAR}`;
+
+  const rowsEl = document.getElementById("rows");
+  rowsEl.innerHTML = "";
+
+  filtered.forEach((d, i) => {
+    const row = document.createElement("div");
+    row.className = "row";
+    row.style.animationDelay = (i * 10) + "ms";
+
+    const nameDiv = document.createElement("div");
+    nameDiv.className = "name";
+    nameDiv.innerHTML = `${d.name}<span class="dates">${d.birth}–${d.death}</span>`;
+
+    const barArea = document.createElement("div");
+    barArea.className = "bar-area";
+
+    // Grid lines
+    for (let y = 1500; y <= 2025; y += 50) {
+      const gl = document.createElement("div");
+      gl.className = "grid-line";
+      gl.style.left = pct(y) + "%";
+      barArea.appendChild(gl);
+    }
+
+    const bar = document.createElement("div");
+    bar.className = `bar cat-${d.cat}`;
+    bar.style.left = pct(d.birth) + "%";
+    bar.style.width = pct(d.death) - pct(d.birth) + "%";
+
+    bar.addEventListener("mousemove", e => showTooltip(e, d));
+    bar.addEventListener("mouseleave", hideTooltip);
+    row.addEventListener("mousemove", e => {
+      if (e.target === bar || bar.contains(e.target)) return;
+    });
+
+    barArea.appendChild(bar);
+    row.appendChild(nameDiv);
+    row.appendChild(barArea);
+    rowsEl.appendChild(row);
+  });
+}
+
+renderHeader();
+data.sort((a,b) => a.birth - b.birth);
+render();
+</script>
+</body>
+</html>

@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Guia de Deploy — História da Psicologia Moderna</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08080c;
+  --surface: #101018;
+  --surface2: #16161f;
+  --border: #1e1e2e;
+  --text: #e8e5dc;
+  --text-dim: #706c78;
+  --gold: #c9a84c;
+  --gold-dim: rgba(201,168,76,0.12);
+  --green: #22c55e;
+  --blue: #38bdf8;
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  line-height: 1.7;
+  padding: 48px 24px 80px;
+}
+.container { max-width: 720px; margin: 0 auto; }
+h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 400;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+.subtitle { font-size: 14px; color: var(--text-dim); margin-bottom: 48px; font-weight: 300; }
+h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 600;
+  margin: 40px 0 16px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+h2 .step-num {
+  width: 32px; height: 32px;
+  border-radius: 50%;
+  background: var(--gold-dim);
+  color: var(--gold);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'DM Sans'; font-size: 14px; font-weight: 600;
+  flex-shrink: 0;
+}
+p { margin-bottom: 12px; font-size: 14px; font-weight: 300; color: var(--text); }
+strong { color: var(--gold); font-weight: 500; }
+code {
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  background: var(--surface2);
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: var(--blue);
+}
+pre {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 20px;
+  margin: 12px 0 20px;
+  overflow-x: auto;
+  font-family: 'DM Mono', monospace;
+  font-size: 13px;
+  line-height: 1.6;
+  color: var(--text);
+}
+ol, ul {
+  margin: 8px 0 16px 20px;
+  font-size: 14px;
+  font-weight: 300;
+}
+li { margin-bottom: 8px; }
+.file-list {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin: 12px 0 20px;
+}
+.file-item {
+  display: flex; align-items: center; gap: 10px;
+  padding: 6px 0;
+  font-size: 13px;
+  border-bottom: 1px solid rgba(30,30,42,0.5);
+}
+.file-item:last-child { border: none; }
+.file-icon { font-size: 16px; }
+.file-name { font-family: 'DM Mono'; color: var(--blue); }
+.file-desc { color: var(--text-dim); font-size: 12px; }
+.alert {
+  background: rgba(201,168,76,0.08);
+  border: 1px solid rgba(201,168,76,0.2);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin: 16px 0;
+  font-size: 13px;
+}
+.alert-green {
+  background: rgba(34,197,94,0.08);
+  border-color: rgba(34,197,94,0.2);
+}
+a { color: var(--gold); }
+</style>
+</head>
+<body>
+<div class="container">
+
+<h1>Guia de Deploy</h1>
+<p class="subtitle">Passo a passo para publicar o sistema com autenticação e banco de dados</p>
+
+<!-- FILES -->
+<h2><span class="step-num">📁</span>Arquivos do projeto</h2>
+
+<div class="file-list">
+  <div class="file-item">
+    <span class="file-icon">🏠</span>
+    <span class="file-name">index.html</span>
+    <span class="file-desc">— Página principal com 3 cards de navegação</span>
+  </div>
+  <div class="file-item">
+    <span class="file-icon">🔐</span>
+    <span class="file-name">login.html</span>
+    <span class="file-desc">— Tela de login e registro com Supabase Auth</span>
+  </div>
+  <div class="file-item">
+    <span class="file-icon">🔑</span>
+    <span class="file-name">auth.js</span>
+    <span class="file-desc">— Módulo de autenticação e operações no banco</span>
+  </div>
+  <div class="file-item">
+    <span class="file-icon">📊</span>
+    <span class="file-name">gantt_psicologia_moderna.html</span>
+    <span class="file-desc">— Gráfico de Gantt interativo</span>
+  </div>
+  <div class="file-item">
+    <span class="file-icon">🌳</span>
+    <span class="file-name">mapa_relacoes.html</span>
+    <span class="file-desc">— Mapa de relações entre pensadores</span>
+  </div>
+  <div class="file-item">
+    <span class="file-icon">📖</span>
+    <span class="file-name">area_estudo.html</span>
+    <span class="file-desc">— Caderno de estudo com IA (requer login)</span>
+  </div>
+  <div class="file-item">
+    <span class="file-icon">🗄️</span>
+    <span class="file-name">supabase_schema.sql</span>
+    <span class="file-desc">— Script SQL para criar as tabelas</span>
+  </div>
+</div>
+
+<!-- STEP 1 -->
+<h2><span class="step-num">1</span>Criar projeto no Supabase</h2>
+
+<ol>
+  <li>Acesse <a href="https://supabase.com" target="_blank">supabase.com</a> e crie uma conta gratuita</li>
+  <li>Clique em <strong>New Project</strong></li>
+  <li>Escolha um nome (ex: <code>psicologia-moderna</code>)</li>
+  <li>Defina uma senha para o banco de dados</li>
+  <li>Selecione a região <strong>South America (São Paulo)</strong></li>
+  <li>Aguarde a criação (~2 minutos)</li>
+</ol>
+
+<!-- STEP 2 -->
+<h2><span class="step-num">2</span>Criar as tabelas no banco</h2>
+
+<ol>
+  <li>No dashboard do Supabase, vá em <strong>SQL Editor</strong> (menu lateral)</li>
+  <li>Clique em <strong>New Query</strong></li>
+  <li>Cole todo o conteúdo do arquivo <code>supabase_schema.sql</code></li>
+  <li>Clique em <strong>Run</strong></li>
+  <li>Verifique que apareceu "Success" — 3 tabelas criadas com RLS</li>
+</ol>
+
+<div class="alert">
+  💡 <strong>O que o SQL cria:</strong> 3 tabelas (study_notes, ai_responses, flashcards) com Row Level Security — cada usuário só acessa seus próprios dados.
+</div>
+
+<!-- STEP 3 -->
+<h2><span class="step-num">3</span>Configurar autenticação</h2>
+
+<ol>
+  <li>No dashboard, vá em <strong>Authentication → Settings → Email</strong></li>
+  <li><strong>Desative</strong> a opção "Confirm email" (para login imediato, sem precisar confirmar email)</li>
+  <li>Salve as alterações</li>
+</ol>
+
+<!-- STEP 4 -->
+<h2><span class="step-num">4</span>Copiar URL e chave da API</h2>
+
+<ol>
+  <li>No dashboard, vá em <strong>Settings → API</strong></li>
+  <li>Copie a <strong>Project URL</strong> (algo como <code>https://xxxxx.supabase.co</code>)</li>
+  <li>Copie a <strong>anon public key</strong> (começa com <code>eyJhbGci...</code>)</li>
+</ol>
+
+<div class="alert alert-green">
+  ✅ <strong>A anon key é segura para usar no frontend</strong> porque o RLS (Row Level Security) protege os dados — cada usuário só vê os seus.
+</div>
+
+<!-- STEP 5 -->
+<h2><span class="step-num">5</span>Publicar no Netlify</h2>
+
+<ol>
+  <li>Acesse <a href="https://netlify.com" target="_blank">netlify.com</a> (você já tem conta)</li>
+  <li>Arraste a pasta com todos os arquivos HTML + JS para o painel do Netlify</li>
+  <li>Pronto — o site estará online em segundos</li>
+</ol>
+
+<p>Estrutura da pasta para deploy:</p>
+<pre>
+psicologia-moderna/
+├── index.html
+├── login.html
+├── auth.js
+├── gantt_psicologia_moderna.html
+├── mapa_relacoes.html
+└── area_estudo.html
+</pre>
+
+<p>(O arquivo <code>supabase_schema.sql</code> <strong>não precisa</strong> ir para o Netlify — ele é usado apenas no Supabase.)</p>
+
+<!-- STEP 6 -->
+<h2><span class="step-num">6</span>Primeiro acesso</h2>
+
+<ol>
+  <li>Abra o site publicado no Netlify</li>
+  <li>Vá para a <strong>Área de Estudo</strong> → será redirecionado ao <strong>Login</strong></li>
+  <li>Na tela de login, clique em <strong>⚙ Configurar Supabase</strong></li>
+  <li>Cole a <strong>URL</strong> e a <strong>anon key</strong> que copiou no passo 4</li>
+  <li>Clique <strong>Salvar configuração</strong></li>
+  <li>Crie uma conta (aba "Criar Conta") e faça login</li>
+</ol>
+
+<div class="alert">
+  💡 <strong>A configuração do Supabase é salva no navegador.</strong> Cada usuário precisa configurar uma vez no primeiro acesso. Se quiser evitar isso, você pode fixar a URL e key diretamente no código do <code>login.html</code> e <code>auth.js</code>.
+</div>
+
+<!-- OPTIONAL -->
+<h2><span class="step-num">⚡</span>Opcional: fixar credenciais no código</h2>
+
+<p>Para que os usuários não precisem configurar manualmente, edite o arquivo <code>login.html</code> e substitua as linhas:</p>
+
+<pre>
+let SUPABASE_URL = localStorage.getItem('sb_url') || '';
+let SUPABASE_KEY = localStorage.getItem('sb_key') || '';
+</pre>
+
+<p>Por:</p>
+
+<pre>
+let SUPABASE_URL = 'https://SEU-PROJETO.supabase.co';
+let SUPABASE_KEY = 'eyJhbGci...SUA-CHAVE-AQUI';
+</pre>
+
+<p>Faça o mesmo no <code>auth.js</code>, na função <code>getConfig()</code>:</p>
+
+<pre>
+getConfig() {
+  return {
+    url: localStorage.getItem('sb_url') || 'https://SEU-PROJETO.supabase.co',
+    key: localStorage.getItem('sb_key') || 'eyJhbGci...SUA-CHAVE-AQUI'
+  };
+},
+</pre>
+
+<div style="margin-top:48px;padding-top:24px;border-top:1px solid var(--border);text-align:center;font-size:12px;color:var(--text-dim);">
+  UNIFACS · Psicologia 2º semestre · Schultz & Schultz
+</div>
+
+</div>
+</body>
+</html>

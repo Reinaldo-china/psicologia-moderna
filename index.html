@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>História da Psicologia Moderna — Schultz & Schultz</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #08080c;
+    --surface: #101018;
+    --surface2: #16161f;
+    --border: #1e1e2e;
+    --text: #e8e5dc;
+    --text-dim: #706c78;
+    --gold: #c9a84c;
+    --gold-dim: rgba(201,168,76,0.12);
+    --gold-glow: rgba(201,168,76,0.25);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* Subtle grain overlay */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    opacity: 0.03;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  .page {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 0 32px;
+  }
+
+  /* ── Hero ── */
+  .hero {
+    padding: 100px 0 60px;
+    text-align: center;
+    position: relative;
+  }
+
+  .hero::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 120px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  }
+
+  .hero .tag {
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 3px;
+    color: var(--gold);
+    margin-bottom: 24px;
+    font-weight: 500;
+  }
+
+  .hero h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(36px, 6vw, 56px);
+    font-weight: 400;
+    line-height: 1.15;
+    color: var(--text);
+    margin-bottom: 20px;
+  }
+
+  .hero h1 em {
+    font-style: italic;
+    color: var(--gold);
+  }
+
+  .hero .subtitle {
+    font-size: 16px;
+    color: var(--text-dim);
+    font-weight: 300;
+    max-width: 520px;
+    margin: 0 auto;
+    line-height: 1.6;
+  }
+
+  .hero .authors {
+    margin-top: 24px;
+    font-size: 13px;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+  }
+
+  /* ── Cards ── */
+  .cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 24px;
+    padding: 72px 0 40px;
+  }
+
+  .cards .card.full-width {
+    grid-column: 1 / -1;
+    min-height: 220px;
+  }
+
+  .cards .card.half-bottom {
+    min-height: 220px;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    padding: 40px 36px;
+    text-decoration: none;
+    color: var(--text);
+    position: relative;
+    overflow: hidden;
+    transition: all 0.35s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    display: flex;
+    flex-direction: column;
+    min-height: 320px;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 16px;
+    border: 1px solid transparent;
+    transition: border-color 0.35s;
+  }
+
+  .card:hover {
+    transform: translateY(-4px);
+    border-color: var(--gold);
+    background: var(--surface2);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.4), 0 0 40px var(--gold-dim);
+  }
+
+  .card .icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 28px;
+    font-size: 26px;
+    background: var(--gold-dim);
+    border: 1px solid rgba(201,168,76,0.2);
+  }
+
+  .card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 12px;
+    line-height: 1.3;
+  }
+
+  .card .desc {
+    font-size: 14px;
+    color: var(--text-dim);
+    line-height: 1.65;
+    font-weight: 300;
+    flex: 1;
+  }
+
+  .card .arrow {
+    margin-top: 28px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    color: var(--gold);
+    font-weight: 500;
+    letter-spacing: 0.5px;
+    transition: gap 0.3s;
+  }
+
+  .card:hover .arrow {
+    gap: 14px;
+  }
+
+  .card .arrow svg {
+    transition: transform 0.3s;
+  }
+
+  .card:hover .arrow svg {
+    transform: translateX(4px);
+  }
+
+  /* ── Decorative timeline line ── */
+  .deco-line {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 20px;
+    padding: 48px 0 24px;
+    color: var(--text-dim);
+    font-size: 11px;
+    letter-spacing: 2px;
+    font-weight: 300;
+  }
+
+  .deco-line .line {
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--border), transparent);
+  }
+
+  /* ── Footer ── */
+  footer {
+    text-align: center;
+    padding: 48px 0 64px;
+    font-size: 12px;
+    color: var(--text-dim);
+    font-weight: 300;
+    letter-spacing: 0.3px;
+  }
+
+  footer a {
+    color: var(--gold);
+    text-decoration: none;
+  }
+
+  /* ── Floating dots decoration ── */
+  .dots {
+    position: absolute;
+    pointer-events: none;
+  }
+
+  @media (max-width: 680px) {
+    .cards { grid-template-columns: 1fr; }
+    .hero { padding: 64px 0 40px; }
+    .card { min-height: 260px; padding: 28px 24px; }
+  }
+
+  /* Entrance animations */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(24px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .hero .tag { animation: fadeUp 0.6s ease-out both; }
+  .hero h1 { animation: fadeUp 0.6s ease-out 0.1s both; }
+  .hero .subtitle { animation: fadeUp 0.6s ease-out 0.2s both; }
+  .hero .authors { animation: fadeUp 0.6s ease-out 0.3s both; }
+  .cards .card:nth-child(1) { animation: fadeUp 0.6s ease-out 0.35s both; }
+  .cards .card:nth-child(2) { animation: fadeUp 0.6s ease-out 0.45s both; }
+  .cards .card:nth-child(3) { animation: fadeUp 0.6s ease-out 0.55s both; }
+</style>
+</head>
+<body>
+
+<div class="page">
+
+  <section class="hero">
+    <div class="tag">Material de Estudo</div>
+    <h1>História da Psicologia <em>Moderna</em></h1>
+    <p class="subtitle">Ferramentas visuais para explorar os pensadores, suas vidas e conexões ao longo de cinco séculos de ideias.</p>
+    <p class="authors">Baseado no livro de Duane P. Schultz & Sydney Ellen Schultz</p>
+  </section>
+
+  <div class="cards">
+
+    <a class="card" href="gantt_psicologia_moderna.html">
+      <div class="icon">⏳</div>
+      <h2>Linha do Tempo</h2>
+      <p class="desc">Gráfico de Gantt interativo com as datas de nascimento e morte de cada pensador. Filtre por categoria — filósofos, fisiologistas, psicólogos, médicos — e veja quem viveu na mesma época.</p>
+      <div class="arrow">
+        Explorar linha do tempo
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </a>
+
+    <a class="card" href="mapa_relacoes.html">
+      <div class="icon">🌳</div>
+      <h2>Mapa de Relações</h2>
+      <p class="desc">Árvores genealógicas intelectuais: quem foi professor de quem, orientador, discípulo, colega ou rival. Navegue pelas redes de influência que formaram cada escola de pensamento.</p>
+      <div class="arrow">
+        Explorar relações
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </a>
+
+    <a class="card half-bottom" href="area_estudo.html">
+      <div class="icon">📖</div>
+      <h2>Área de Estudo</h2>
+      <p class="desc">Seu caderno digital capítulo a capítulo. Escreva suas interpretações e anotações, peça revisão com IA que identifica pontos fortes, sugere conexões e gera flashcards para revisão espaçada.</p>
+      <div class="arrow">
+        Abrir caderno de estudo
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </a>
+
+    <a class="card half-bottom" href="mapa_pensadores.html">
+      <div class="icon">🌎</div>
+      <h2>Mapa Mundi</h2>
+      <p class="desc">Geolocalização interativa dos 111 pensadores no mapa-múndi. Visualize onde cada um nasceu e os locais onde viveu, trabalhou ou lecionou. Filtre por categoria e período histórico.</p>
+      <div class="arrow">
+        Explorar no mapa
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </div>
+    </a>
+
+  </div>
+
+  <div class="deco-line">
+    <div class="line"></div>
+    <span>1473 — 2025</span>
+    <div class="line"></div>
+  </div>
+
+  <footer>
+    <div id="userBar" style="margin-bottom:16px;display:none;">
+      <span id="userGreeting" style="color:var(--gold);"></span>
+      <span style="margin:0 8px;color:var(--border);">·</span>
+      <a href="#" onclick="Auth.logout();return false;" style="color:var(--text-dim);text-decoration:none;font-size:12px;">Sair</a>
+    </div>
+    Ferramenta de estudo para UNIFACS · Psicologia 2º semestre
+  </footer>
+
+</div>
+
+<script src="auth.js"></script>
+<script>
+  // Show user info if logged in
+  try {
+    const session = Auth.getSession();
+    if (session?.user) {
+      document.getElementById('userBar').style.display = 'block';
+      document.getElementById('userGreeting').textContent = 'Olá, ' + Auth.getUserName();
+    }
+  } catch(e) {}
+</script>
+
+</body>
+</html>

@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Área de Estudo — História da Psicologia Moderna</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@300;400&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08080c;
+  --surface: #101018;
+  --surface2: #16161f;
+  --surface3: #1c1c28;
+  --border: #1e1e2e;
+  --border-light: #2a2a3a;
+  --text: #e8e5dc;
+  --text-dim: #706c78;
+  --text-mid: #9a96a0;
+  --gold: #c9a84c;
+  --gold-dim: rgba(201,168,76,0.12);
+  --green: #22c55e;
+  --green-dim: rgba(34,197,94,0.12);
+  --blue: #38bdf8;
+  --blue-dim: rgba(56,189,248,0.12);
+  --red: #f43f5e;
+  --purple: #a78bfa;
+  --purple-dim: rgba(167,139,250,0.12);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+}
+
+/* ── Layout ── */
+.layout {
+  display: grid;
+  grid-template-columns: 280px 1fr;
+  min-height: 100vh;
+}
+
+/* ── Sidebar ── */
+.sidebar {
+  background: var(--surface);
+  border-right: 1px solid var(--border);
+  padding: 24px 0;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar-header {
+  padding: 0 20px 20px;
+  border-bottom: 1px solid var(--border);
+}
+
+.sidebar-header a {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 16px;
+  transition: color 0.2s;
+}
+
+.sidebar-header a:hover { color: var(--gold); }
+
+.sidebar-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 18px;
+  font-weight: 400;
+  color: var(--gold);
+}
+
+.progress-bar {
+  margin-top: 16px;
+  background: var(--surface2);
+  border-radius: 6px;
+  height: 6px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--gold), #e2c97a);
+  border-radius: 6px;
+  transition: width 0.4s ease;
+}
+
+.progress-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 6px;
+  font-weight: 300;
+}
+
+/* Chapter list */
+.chapter-list {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px 0;
+}
+
+.ch-item {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 20px;
+  cursor: pointer;
+  transition: all 0.15s;
+  border-left: 3px solid transparent;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.ch-item:hover {
+  background: var(--surface2);
+  color: var(--text);
+}
+
+.ch-item.active {
+  background: var(--gold-dim);
+  border-left-color: var(--gold);
+  color: var(--gold);
+  font-weight: 500;
+}
+
+.ch-item .ch-num {
+  font-size: 11px;
+  font-weight: 600;
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--surface2);
+  color: var(--text-dim);
+  flex-shrink: 0;
+}
+
+.ch-item.active .ch-num {
+  background: var(--gold);
+  color: var(--bg);
+}
+
+.ch-item.has-notes .ch-num {
+  background: var(--green-dim);
+  color: var(--green);
+}
+
+.ch-item.active.has-notes .ch-num {
+  background: var(--gold);
+  color: var(--bg);
+}
+
+.ch-item .ch-title {
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.3;
+}
+
+.ch-item .ch-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--green);
+  flex-shrink: 0;
+  opacity: 0;
+}
+
+.ch-item.has-notes .ch-dot { opacity: 1; }
+
+/* ── Main content ── */
+.main {
+  padding: 40px 48px 80px;
+  max-width: 860px;
+}
+
+.ch-heading {
+  margin-bottom: 32px;
+}
+
+.ch-heading .ch-label {
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--gold);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.ch-heading h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 28px;
+  font-weight: 400;
+  line-height: 1.3;
+  margin-bottom: 8px;
+}
+
+.ch-heading .ch-summary {
+  font-size: 14px;
+  color: var(--text-dim);
+  line-height: 1.6;
+  font-weight: 300;
+}
+
+/* ── Sections ── */
+.section-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  font-weight: 500;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.section-label svg { opacity: 0.5; }
+
+/* ── Notes textarea ── */
+.notes-area {
+  margin-bottom: 36px;
+}
+
+.notes-textarea {
+  width: 100%;
+  min-height: 200px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  line-height: 1.7;
+  resize: vertical;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.notes-textarea:focus {
+  border-color: var(--gold);
+}
+
+.notes-textarea::placeholder {
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+.notes-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 10px;
+}
+
+.save-status {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 300;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.save-status.saved { color: var(--green); }
+
+/* ── Action buttons ── */
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 36px;
+}
+
+.btn {
+  padding: 10px 20px;
+  border-radius: 10px;
+  font-size: 13px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--border);
+  background: var(--surface2);
+  color: var(--text);
+}
+
+.btn:hover { transform: translateY(-1px); }
+
+.btn-primary {
+  background: linear-gradient(135deg, var(--gold), #b8943f);
+  border-color: var(--gold);
+  color: var(--bg);
+  font-weight: 600;
+}
+
+.btn-primary:hover {
+  box-shadow: 0 4px 20px rgba(201,168,76,0.3);
+}
+
+.btn-secondary {
+  background: var(--purple-dim);
+  border-color: rgba(167,139,250,0.3);
+  color: var(--purple);
+}
+
+.btn-secondary:hover {
+  box-shadow: 0 4px 20px rgba(167,139,250,0.15);
+}
+
+.btn-tertiary {
+  background: var(--blue-dim);
+  border-color: rgba(56,189,248,0.3);
+  color: var(--blue);
+}
+
+.btn-tertiary:hover {
+  box-shadow: 0 4px 20px rgba(56,189,248,0.15);
+}
+
+.btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+/* ── AI Response panel ── */
+.ai-panel {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 36px;
+  overflow: hidden;
+  display: none;
+}
+
+.ai-panel.visible { display: block; }
+
+.ai-panel-header {
+  padding: 16px 20px;
+  border-bottom: 1px solid var(--border);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.ai-panel-header .ai-badge {
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.badge-review { background: var(--gold-dim); color: var(--gold); }
+.badge-flash { background: var(--purple-dim); color: var(--purple); }
+.badge-question { background: var(--blue-dim); color: var(--blue); }
+
+.ai-panel-body {
+  padding: 20px;
+  font-size: 14px;
+  line-height: 1.75;
+  color: var(--text);
+  font-weight: 300;
+}
+
+.ai-panel-body strong {
+  color: var(--gold);
+  font-weight: 500;
+}
+
+.ai-panel-body ul {
+  margin: 8px 0;
+  padding-left: 20px;
+}
+
+.ai-panel-body li {
+  margin-bottom: 6px;
+  color: var(--text-mid);
+}
+
+.ai-panel-body li strong { color: var(--text); }
+
+/* ── Loading animation ── */
+.loading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px;
+  font-size: 13px;
+  color: var(--text-dim);
+}
+
+.loading-dots {
+  display: flex;
+  gap: 4px;
+}
+
+.loading-dots span {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--gold);
+  animation: pulse 1.2s infinite ease-in-out;
+}
+
+.loading-dots span:nth-child(2) { animation-delay: 0.2s; }
+.loading-dots span:nth-child(3) { animation-delay: 0.4s; }
+
+@keyframes pulse {
+  0%, 80%, 100% { opacity: 0.2; transform: scale(0.8); }
+  40% { opacity: 1; transform: scale(1); }
+}
+
+/* ── Flashcards ── */
+.flashcards {
+  display: none;
+  margin-bottom: 36px;
+}
+
+.flashcards.visible { display: block; }
+
+.flashcard {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 12px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: border-color 0.2s;
+}
+
+.flashcard:hover { border-color: var(--purple); }
+
+.flashcard-q {
+  padding: 16px 20px;
+  font-size: 14px;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.flashcard-q .fc-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: var(--purple-dim);
+  color: var(--purple);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.flashcard-a {
+  padding: 0 20px 16px 58px;
+  font-size: 13px;
+  color: var(--text-mid);
+  line-height: 1.6;
+  display: none;
+  font-weight: 300;
+}
+
+.flashcard.open .flashcard-a { display: block; }
+.flashcard.open { border-color: var(--purple); }
+
+/* ── Mobile ── */
+@media (max-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    position: relative;
+    height: auto;
+    max-height: 50vh;
+  }
+  .main { padding: 24px 16px 60px; }
+}
+
+/* ── Animations ── */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(12px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.ai-panel.visible, .flashcards.visible {
+  animation: fadeIn 0.3s ease-out;
+}
+</style>
+</head>
+<body>
+
+<div class="layout">
+
+<!-- ── SIDEBAR ── -->
+<aside class="sidebar">
+  <div class="sidebar-header">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;">
+      <a href="index.html" style="margin:0;">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+        Início
+      </a>
+      <button onclick="Auth.logout()" style="background:none;border:1px solid var(--border);border-radius:8px;color:var(--text-dim);font-size:11px;padding:4px 10px;cursor:pointer;font-family:'DM Sans',sans-serif;" title="Sair">Sair</button>
+    </div>
+    <h1>Área de Estudo</h1>
+    <div style="font-size:12px;color:var(--text-dim);margin-top:4px;font-weight:300;" id="userName"></div>
+    <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%"></div></div>
+    <div class="progress-label" id="progressLabel">0 de 16 capítulos anotados</div>
+  </div>
+  <div class="chapter-list" id="chapterList"></div>
+</aside>
+
+<!-- ── MAIN ── -->
+<main class="main" id="mainContent">
+  <!-- Dynamic content -->
+</main>
+
+</div>
+
+<script src="auth.js"></script>
+<script>
+// ═══════════════════════════════════════
+// DATA: Chapters from Schultz & Schultz
+// ═══════════════════════════════════════
+const chapters = [
+  {
+    num: 1,
+    title: "O Estudo da História da Psicologia",
+    summary: "Por que estudar história da psicologia? Historiografia, dados históricos, teoria personalista vs. naturalista, escolas de pensamento. Forças contextuais: empregos, guerras, preconceito.",
+    keyTopics: ["historiografia", "teoria personalista", "teoria naturalista", "Zeitgeist", "escolas de pensamento"]
+  },
+  {
+    num: 2,
+    title: "As Influências Filosóficas na Psicologia",
+    summary: "Mecanicismo, determinismo, o autômato. Descartes e o dualismo mente-corpo. Empirismo britânico: Locke, Berkeley, Hume, os Mills. Positivismo de Comte. Materialismo.",
+    keyTopics: ["Descartes", "mecanicismo", "empirismo", "Locke", "tábula rasa", "Comte", "positivismo", "associacionismo", "James Mill", "John Stuart Mill"]
+  },
+  {
+    num: 3,
+    title: "As Influências Fisiológicas na Psicologia",
+    summary: "Avanços iniciais da fisiologia. Weber e Fechner (psicofísica). Helmholtz e a velocidade do impulso nervoso. Localização cerebral: Gall, Flourens, Broca. Ramón y Cajal.",
+    keyTopics: ["Weber", "Fechner", "psicofísica", "Helmholtz", "Müller", "energias nervosas específicas", "frenologia", "Broca", "localização cerebral"]
+  },
+  {
+    num: 4,
+    title: "A Nova Psicologia",
+    summary: "Wilhelm Wundt e o laboratório de Leipzig (1879). Voluntarismo. Ebbinghaus e a memória. Brentano e os atos mentais. Stumpf e a fenomenologia. Külpe e o laboratório de Würzburg.",
+    keyTopics: ["Wundt", "Leipzig", "voluntarismo", "introspecção", "Ebbinghaus", "sílabas sem sentido", "Brentano", "Stumpf", "Külpe", "pensamento sem imagens"]
+  },
+  {
+    num: 5,
+    title: "Estruturalismo",
+    summary: "E.B. Titchener: do laboratório de Wundt para Cornell. O conteúdo da experiência consciente. Introspecção. Elementos da consciência. Erro de estímulo. Críticas ao estruturalismo.",
+    keyTopics: ["Titchener", "estruturalismo", "introspecção", "elementos da consciência", "erro de estímulo", "sensações", "imagens", "sentimentos"]
+  },
+  {
+    num: 6,
+    title: "Funcionalismo: As Influências Anteriores",
+    summary: "Darwin e a seleção natural. Spencer e o darwinismo social. Galton: diferenças individuais, testes mentais, estatística. Romanes e Lloyd Morgan: psicologia animal.",
+    keyTopics: ["Darwin", "seleção natural", "Spencer", "darwinismo social", "Galton", "eugenia", "testes mentais", "Romanes", "Lloyd Morgan", "cânone de parcimônia"]
+  },
+  {
+    num: 7,
+    title: "Fundação e Desenvolvimento do Funcionalismo",
+    summary: "William James: Princípios de Psicologia, pragmatismo, fluxo da consciência. Calkins, Woolley, Hollingworth. G. Stanley Hall e a APA. Dewey e o arco reflexo. Angell. Woodworth.",
+    keyTopics: ["William James", "pragmatismo", "consciência", "Hall", "APA", "Dewey", "arco reflexo", "Angell", "Woodworth", "Calkins"]
+  },
+  {
+    num: 8,
+    title: "Psicologia Aplicada: O Legado do Funcionalismo",
+    summary: "Cattell e os testes mentais. Binet e o QI. Testes na I Guerra. Witmer e a psicologia clínica. Scott e Münsterberg: psicologia industrial. Estudos de Hawthorne. Gilbreth.",
+    keyTopics: ["Cattell", "testes mentais", "Binet", "QI", "Witmer", "psicologia clínica", "Scott", "Münsterberg", "psicologia industrial", "Hawthorne"]
+  },
+  {
+    num: 9,
+    title: "Behaviorismo: As Influências Anteriores",
+    summary: "Positivismo e objetividade. Psicologia animal: Loeb, Thorndike (caixa-problema, leis da aprendizagem). Pavlov: reflexos condicionados. Bekhterev: reflexos associados.",
+    keyTopics: ["positivismo", "Loeb", "tropismos", "Thorndike", "conexionismo", "lei do efeito", "Pavlov", "reflexo condicionado", "Bekhterev"]
+  },
+  {
+    num: 10,
+    title: "O Início do Behaviorismo",
+    summary: "John B. Watson: manifesto behaviorista, métodos objetivos. Pequeno Albert. Instintos, emoções, pensamento. Apelo popular. Críticas: Lashley, McDougall. Debate de 1924.",
+    keyTopics: ["Watson", "behaviorismo", "Pequeno Albert", "objetividade", "Lashley", "McDougall", "debate Watson-McDougall"]
+  },
+  {
+    num: 11,
+    title: "Behaviorismo: Período Pós-Fundação",
+    summary: "Operacionismo. Tolman: behaviorismo intencional, variáveis intervenientes. Hull: sistema hipotético-dedutivo. Skinner: condicionamento operante, reforço. Bandura: aprendizagem social. Rotter: locus de controle.",
+    keyTopics: ["operacionismo", "Tolman", "mapas cognitivos", "Hull", "Skinner", "condicionamento operante", "reforço", "Bandura", "autoeficácia", "Rotter", "locus de controle"]
+  },
+  {
+    num: 12,
+    title: "A Psicologia da Gestalt",
+    summary: "A revolta da Gestalt: Wertheimer e o fenômeno phi. Koffka, Köhler. Princípios de organização perceptual. Insight nos macacos. Isomorfismo. Kurt Lewin: teoria de campo, psicologia social.",
+    keyTopics: ["Gestalt", "Wertheimer", "fenômeno phi", "Koffka", "Köhler", "insight", "organização perceptual", "isomorfismo", "Lewin", "teoria de campo"]
+  },
+  {
+    num: 13,
+    title: "O Início da Psicanálise",
+    summary: "Influências: inconsciente, hipnose, Charcot, Breuer. Sigmund Freud: associação livre, análise de sonhos. Instintos, id/ego/superego, estágios psicossexuais. Críticas e contribuições.",
+    keyTopics: ["Freud", "inconsciente", "associação livre", "sonhos", "id", "ego", "superego", "estágios psicossexuais", "Charcot", "Breuer", "Anna O."]
+  },
+  {
+    num: 14,
+    title: "Psicanálise: Período Pós-Fundação",
+    summary: "Anna Freud e a psicologia do ego. Jung: inconsciente coletivo, arquétipos. Adler: psicologia individual. Horney: ansiedade básica. Maslow e Rogers: psicologia humanista. Seligman: psicologia positiva.",
+    keyTopics: ["Anna Freud", "Jung", "inconsciente coletivo", "arquétipos", "Adler", "inferioridade", "Horney", "Maslow", "autorrealização", "Rogers", "Seligman", "psicologia positiva"]
+  },
+  {
+    num: 15,
+    title: "O Desenvolvimento Contemporâneo",
+    summary: "Revolução cognitiva: Miller ('mágico número 7'), Neisser. Computadores e IA: Turing. Neurociência cognitiva. Cognição inconsciente. Psicologia evolucionista.",
+    keyTopics: ["psicologia cognitiva", "Miller", "Neisser", "Turing", "inteligência artificial", "neurociência cognitiva", "psicologia evolucionista"]
+  },
+  {
+    num: 16,
+    title: "Apontamentos para a Pesquisa em História da Psicologia no Brasil",
+    summary: "Desenvolvimento da psicologia no Brasil. Instituições, ensino superior, inícios institucionais. Seminários nacionais. Pesquisas brasileiras em história da psicologia.",
+    keyTopics: ["psicologia no Brasil", "história institucional", "pesquisa brasileira"]
+  }
+];
+
+// ═══════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════
+let currentChapter = 0;
+let notes = {};
+let aiResponses = {};
+let flashcards = {};
+let userId = null;
+
+// Load auth module and init
+async function initApp() {
+  // Exige login obrigatório — redireciona se não autenticado
+  if (typeof Auth === 'undefined' || !Auth.requireAuth()) return;
+
+  const session = Auth.getSession();
+  if (!session?.user) {
+    window.location.href = 'login.html';
+    return;
+  }
+
+  userId = session.user.id;
+  document.getElementById('userName').textContent = Auth.getUserName();
+
+  // Carrega dados exclusivamente do Supabase
+  try {
+    const allNotes = await DB.getNotes(userId);
+    if (allNotes) {
+      allNotes.forEach(n => { notes[n.chapter] = n.content; });
+    }
+
+    for (let ch = 1; ch <= 16; ch++) {
+      const aiResp = await DB.getAIResponse(userId, ch);
+      if (aiResp) aiResponses[ch] = aiResp.content;
+
+      const cards = await DB.getFlashcards(userId, ch);
+      if (cards?.length) {
+        flashcards[ch] = cards.map(c => ({ q: c.question, a: c.answer }));
+      }
+    }
+  } catch(e) {
+    console.error('Erro ao carregar dados do servidor:', e);
+  }
+
+  render();
+}
+
+async function saveNotes() {
+  if (!userId) return;
+  const ch = chapters[currentChapter];
+  const content = notes[ch.num];
+  if (content !== undefined) {
+    await DB.saveNote(userId, ch.num, content);
+  }
+}
+
+async function saveAIToCloud(chapter, type, content) {
+  if (!userId) return;
+  await DB.saveAIResponse(userId, chapter, type, content);
+}
+
+async function saveFlashcardsToCloud(chapter, cards) {
+  if (!userId) return;
+  await DB.saveFlashcards(userId, chapter, cards);
+}
+
+// ═══════════════════════════════════════
+// SIDEBAR
+// ═══════════════════════════════════════
+function renderSidebar() {
+  const list = document.getElementById('chapterList');
+  list.innerHTML = '';
+  let annotated = 0;
+
+  chapters.forEach((ch, i) => {
+    const hasNotes = notes[ch.num] && notes[ch.num].trim().length > 0;
+    if (hasNotes) annotated++;
+
+    const item = document.createElement('div');
+    item.className = `ch-item${i === currentChapter ? ' active' : ''}${hasNotes ? ' has-notes' : ''}`;
+    item.onclick = () => { currentChapter = i; render(); };
+    item.innerHTML = `
+      <div class="ch-num">${ch.num}</div>
+      <div class="ch-title">${ch.title}</div>
+      <div class="ch-dot"></div>
+    `;
+    list.appendChild(item);
+  });
+
+  const pct = Math.round((annotated / chapters.length) * 100);
+  document.getElementById('progressFill').style.width = pct + '%';
+  document.getElementById('progressLabel').textContent = `${annotated} de ${chapters.length} capítulos anotados`;
+}
+
+// ═══════════════════════════════════════
+// MAIN CONTENT
+// ═══════════════════════════════════════
+function render() {
+  renderSidebar();
+  const ch = chapters[currentChapter];
+  const main = document.getElementById('mainContent');
+
+  const noteVal = notes[ch.num] || '';
+  const aiResp = aiResponses[ch.num] || '';
+  const flash = flashcards[ch.num] || [];
+
+  main.innerHTML = `
+    <div class="ch-heading">
+      <div class="ch-label">Capítulo ${ch.num}</div>
+      <h2>${ch.title}</h2>
+      <div class="ch-summary">${ch.summary}</div>
+    </div>
+
+    <div class="notes-area">
+      <div class="section-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 20h9M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"/></svg>
+        Suas Anotações
+      </div>
+      <textarea
+        class="notes-textarea"
+        id="notesInput"
+        placeholder="Escreva aqui suas interpretações, dúvidas, conexões com outros capítulos, reflexões pessoais sobre o capítulo ${ch.num}..."
+        oninput="handleNoteChange()"
+      >${noteVal}</textarea>
+      <div class="notes-footer">
+        <div class="save-status${noteVal ? ' saved' : ''}" id="saveStatus">
+          ${noteVal ? '✓ Salvo automaticamente' : 'Comece a digitar...'}
+        </div>
+        <span style="font-size:11px;color:var(--text-dim)">${noteVal.length} caracteres</span>
+      </div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-primary" onclick="reviewWithAI()" ${!noteVal.trim() ? 'disabled' : ''}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        Revisar com IA
+      </button>
+      <button class="btn btn-secondary" onclick="generateFlashcards()" ${!noteVal.trim() ? 'disabled' : ''}>
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        Gerar Flashcards
+      </button>
+      <button class="btn btn-tertiary" onclick="askQuestion()">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+        Perguntar sobre o capítulo
+      </button>
+    </div>
+
+    <div class="ai-panel${aiResp ? ' visible' : ''}" id="aiPanel">
+      <div class="ai-panel-header">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--gold)" stroke-width="2"><path d="M12 2L2 7l10 5 10-5-10-5z"/><path d="M2 17l10 5 10-5"/><path d="M2 12l10 5 10-5"/></svg>
+        Revisão da IA
+        <span class="ai-badge badge-review">Claude</span>
+      </div>
+      <div class="ai-panel-body" id="aiBody">${aiResp}</div>
+    </div>
+
+    <div class="flashcards${flash.length > 0 ? ' visible' : ''}" id="flashcardsContainer">
+      <div class="section-label">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></svg>
+        Flashcards para Revisão — clique para revelar
+      </div>
+      ${flash.map((f, i) => `
+        <div class="flashcard" onclick="this.classList.toggle('open')">
+          <div class="flashcard-q">
+            <div class="fc-icon">?</div>
+            ${f.q}
+          </div>
+          <div class="flashcard-a">${f.a}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ═══════════════════════════════════════
+// NOTE HANDLING
+// ═══════════════════════════════════════
+let saveTimeout;
+function handleNoteChange() {
+  const ch = chapters[currentChapter];
+  const val = document.getElementById('notesInput').value;
+  notes[ch.num] = val;
+
+  const status = document.getElementById('saveStatus');
+  status.textContent = 'Salvando...';
+  status.className = 'save-status';
+
+  clearTimeout(saveTimeout);
+  saveTimeout = setTimeout(async () => {
+    await saveNotes();
+    status.textContent = '☁ Salvo na nuvem';
+    status.className = 'save-status saved';
+    renderSidebar();
+    // Update button states
+    document.querySelectorAll('.btn-primary, .btn-secondary').forEach(b => {
+      b.disabled = !val.trim();
+    });
+  }, 600);
+}
+
+// ═══════════════════════════════════════
+// AI CALLS
+// ═══════════════════════════════════════
+async function callClaude(systemPrompt, userPrompt) {
+  const response = await fetch("https://api.anthropic.com/v1/messages", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({
+      model: "claude-sonnet-4-20250514",
+      max_tokens: 1000,
+      system: systemPrompt,
+      messages: [{ role: "user", content: userPrompt }]
+    })
+  });
+  const data = await response.json();
+  return data.content?.map(b => b.text || '').join('\n') || 'Erro ao obter resposta.';
+}
+
+function showLoading(containerId, msg) {
+  const panel = document.getElementById(containerId);
+  panel.classList.add('visible');
+  const body = panel.querySelector('.ai-panel-body') || panel;
+  body.innerHTML = `<div class="loading"><div class="loading-dots"><span></span><span></span><span></span></div>${msg}</div>`;
+}
+
+async function reviewWithAI() {
+  const ch = chapters[currentChapter];
+  const noteVal = notes[ch.num];
+  if (!noteVal?.trim()) return;
+
+  showLoading('aiPanel', 'Analisando suas anotações...');
+
+  const systemPrompt = `Você é um professor de História da Psicologia na universidade. O aluno está estudando o livro "História da Psicologia Moderna" de Schultz & Schultz. Sua tarefa é revisar as anotações do aluno sobre o Capítulo ${ch.num}: "${ch.title}".
+
+Tópicos-chave deste capítulo: ${ch.keyTopics.join(', ')}.
+Resumo do capítulo: ${ch.summary}
+
+Responda em HTML formatado (use <strong>, <ul>, <li>). Estruture sua revisão em:
+1. <strong>Pontos fortes</strong> — o que o aluno capturou bem
+2. <strong>Conexões possíveis</strong> — links com outros capítulos ou conceitos que o aluno pode explorar
+3. <strong>Atenção</strong> — possíveis equívocos ou simplificações excessivas (se houver)
+4. <strong>Para aprofundar</strong> — 2-3 perguntas reflexivas para expandir o entendimento
+
+Seja encorajador mas honesto. Responda em português brasileiro. Seja conciso (máximo 400 palavras).`;
+
+  try {
+    const response = await callClaude(systemPrompt, `Minhas anotações sobre o Capítulo ${ch.num} (${ch.title}):\n\n${noteVal}`);
+    aiResponses[ch.num] = response;
+    saveNotes();
+    saveAIToCloud(ch.num, 'review', response);
+    document.getElementById('aiBody').innerHTML = response;
+  } catch(e) {
+    document.getElementById('aiBody').innerHTML = `<p style="color:var(--red)">Erro ao conectar com a IA. Tente novamente.</p>`;
+  }
+}
+
+async function generateFlashcards() {
+  const ch = chapters[currentChapter];
+  const noteVal = notes[ch.num];
+  if (!noteVal?.trim()) return;
+
+  const container = document.getElementById('flashcardsContainer');
+  container.classList.add('visible');
+  container.innerHTML = `<div class="section-label"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="3" width="20" height="14" rx="2"/></svg>Gerando flashcards...</div><div class="loading"><div class="loading-dots"><span></span><span></span><span></span></div>Criando perguntas e respostas...</div>`;
+
+  const systemPrompt = `Você é um professor criando flashcards de revisão espaçada. Baseado nas anotações do aluno sobre o Capítulo ${ch.num}: "${ch.title}" do livro "História da Psicologia Moderna" (Schultz & Schultz).
+
+Tópicos-chave: ${ch.keyTopics.join(', ')}.
+
+Gere EXATAMENTE 5 flashcards no formato JSON puro (sem markdown, sem backticks):
+[{"q":"pergunta aqui","a":"resposta aqui"}]
+
+As perguntas devem testar compreensão conceitual (não apenas memorização). Misture:
+- Perguntas sobre "por quê" e "como"
+- Comparações entre pensadores
+- Aplicações práticas dos conceitos
+Responda em português brasileiro. Respostas curtas (1-2 frases).`;
+
+  try {
+    const raw = await callClaude(systemPrompt, `Anotações do aluno:\n\n${noteVal}`);
+    const cleaned = raw.replace(/```json|```/g, '').trim();
+    const cards = JSON.parse(cleaned);
+    flashcards[ch.num] = cards;
+    saveNotes();
+    saveFlashcardsToCloud(ch.num, cards);
+    render();
+  } catch(e) {
+    container.innerHTML = `<div class="section-label" style="color:var(--red)">Erro ao gerar flashcards. Tente novamente.</div>`;
+  }
+}
+
+async function askQuestion() {
+  const ch = chapters[currentChapter];
+  const question = prompt(`Qual sua dúvida sobre o Capítulo ${ch.num} — ${ch.title}?`);
+  if (!question?.trim()) return;
+
+  const panel = document.getElementById('aiPanel');
+  const header = panel.querySelector('.ai-panel-header');
+  header.innerHTML = `
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--blue)" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3"/><path d="M12 17h.01"/></svg>
+    Sua pergunta
+    <span class="ai-badge badge-question">Claude</span>
+  `;
+  showLoading('aiPanel', 'Pensando na sua pergunta...');
+
+  const noteVal = notes[ch.num] || '';
+  const systemPrompt = `Você é um tutor de História da Psicologia. O aluno está no Capítulo ${ch.num}: "${ch.title}" do livro "História da Psicologia Moderna" (Schultz & Schultz).
+
+Resumo do capítulo: ${ch.summary}
+Tópicos-chave: ${ch.keyTopics.join(', ')}.
+${noteVal ? `Anotações do aluno: ${noteVal}` : ''}
+
+Responda a dúvida de forma clara e didática em HTML (<strong>, <ul>, <li>). Português brasileiro. Máximo 300 palavras. Se a pergunta envolver conceitos de outros capítulos, mencione a conexão.`;
+
+  try {
+    const response = await callClaude(systemPrompt, question);
+    document.getElementById('aiBody').innerHTML = `<p style="color:var(--blue);font-weight:500;margin-bottom:8px;">❝ ${question} ❞</p>${response}`;
+  } catch(e) {
+    document.getElementById('aiBody').innerHTML = `<p style="color:var(--red)">Erro ao conectar com a IA.</p>`;
+  }
+}
+
+// ═══════════════════════════════════════
+// INIT
+// ═══════════════════════════════════════
+initApp();
+</script>
+
+</body>
+</html>

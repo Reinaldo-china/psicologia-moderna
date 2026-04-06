@@ -1,0 +1,623 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login — História da Psicologia Moderna</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08080c;
+  --surface: #101018;
+  --surface2: #16161f;
+  --border: #1e1e2e;
+  --text: #e8e5dc;
+  --text-dim: #706c78;
+  --text-mid: #9a96a0;
+  --gold: #c9a84c;
+  --gold-dim: rgba(201,168,76,0.12);
+  --gold-glow: rgba(201,168,76,0.25);
+  --green: #22c55e;
+  --red: #f43f5e;
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+/* Background decoration */
+body::before {
+  content: '';
+  position: fixed;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(ellipse at 30% 20%, rgba(201,168,76,0.04) 0%, transparent 50%),
+              radial-gradient(ellipse at 70% 80%, rgba(99,102,241,0.03) 0%, transparent 50%);
+  pointer-events: none;
+}
+
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 0;
+}
+
+.login-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 420px;
+  padding: 0 24px;
+}
+
+/* Header */
+.login-header {
+  text-align: center;
+  margin-bottom: 40px;
+}
+
+.login-header .tag {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  color: var(--gold);
+  margin-bottom: 16px;
+  font-weight: 500;
+}
+
+.login-header h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 32px;
+  font-weight: 400;
+  line-height: 1.2;
+  margin-bottom: 8px;
+}
+
+.login-header h1 em {
+  font-style: italic;
+  color: var(--gold);
+}
+
+.login-header p {
+  font-size: 14px;
+  color: var(--text-dim);
+  font-weight: 300;
+}
+
+/* Card */
+.login-card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 16px;
+  padding: 36px 32px;
+  position: relative;
+  overflow: hidden;
+}
+
+.login-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, var(--gold), transparent);
+  opacity: 0.5;
+}
+
+/* Tabs */
+.auth-tabs {
+  display: flex;
+  gap: 0;
+  margin-bottom: 28px;
+  background: var(--surface2);
+  border-radius: 10px;
+  padding: 3px;
+}
+
+.auth-tab {
+  flex: 1;
+  padding: 10px;
+  text-align: center;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--text-dim);
+  cursor: pointer;
+  border-radius: 8px;
+  transition: all 0.25s;
+  border: none;
+  background: none;
+  font-family: 'DM Sans', sans-serif;
+}
+
+.auth-tab.active {
+  background: var(--bg);
+  color: var(--gold);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+}
+
+.auth-tab:hover:not(.active) {
+  color: var(--text);
+}
+
+/* Form */
+.form-group {
+  margin-bottom: 18px;
+}
+
+.form-group label {
+  display: block;
+  font-size: 12px;
+  color: var(--text-dim);
+  margin-bottom: 6px;
+  font-weight: 400;
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.form-group input {
+  width: 100%;
+  padding: 12px 16px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 3px var(--gold-dim);
+}
+
+.form-group input::placeholder {
+  color: var(--text-dim);
+}
+
+/* Submit button */
+.submit-btn {
+  width: 100%;
+  padding: 14px;
+  border: none;
+  border-radius: 10px;
+  background: linear-gradient(135deg, var(--gold), #b8943f);
+  color: var(--bg);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.25s;
+  margin-top: 8px;
+  letter-spacing: 0.3px;
+}
+
+.submit-btn:hover {
+  transform: translateY(-1px);
+  box-shadow: 0 6px 24px rgba(201,168,76,0.3);
+}
+
+.submit-btn:active {
+  transform: translateY(0);
+}
+
+.submit-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* Messages */
+.message {
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: 13px;
+  margin-bottom: 16px;
+  display: none;
+  line-height: 1.5;
+}
+
+.message.error {
+  display: block;
+  background: rgba(244,63,94,0.1);
+  border: 1px solid rgba(244,63,94,0.2);
+  color: var(--red);
+}
+
+.message.success {
+  display: block;
+  background: rgba(34,197,94,0.1);
+  border: 1px solid rgba(34,197,94,0.2);
+  color: var(--green);
+}
+
+/* Divider */
+.divider {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 24px 0;
+  color: var(--text-dim);
+  font-size: 11px;
+  letter-spacing: 1px;
+}
+
+.divider::before, .divider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+/* Footer */
+.login-footer {
+  text-align: center;
+  margin-top: 28px;
+  font-size: 12px;
+  color: var(--text-dim);
+  font-weight: 300;
+}
+
+/* Loading */
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(8,8,12,0.3);
+  border-top-color: var(--bg);
+  border-radius: 50%;
+  animation: spin 0.6s linear infinite;
+  vertical-align: middle;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Config panel */
+.config-panel {
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid var(--border);
+}
+
+.config-panel summary {
+  font-size: 12px;
+  color: var(--text-dim);
+  cursor: pointer;
+  outline: none;
+  user-select: none;
+  transition: color 0.2s;
+}
+
+.config-panel summary:hover { color: var(--gold); }
+
+.config-inputs {
+  margin-top: 12px;
+}
+
+.config-inputs .form-group input {
+  font-family: 'DM Mono', monospace;
+  font-size: 12px;
+}
+
+.config-save {
+  padding: 8px 16px;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text);
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  margin-top: 4px;
+}
+
+.config-save:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+/* Animations */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.login-header { animation: fadeUp 0.5s ease-out both; }
+.login-card { animation: fadeUp 0.5s ease-out 0.1s both; }
+.login-footer { animation: fadeUp 0.5s ease-out 0.2s both; }
+</style>
+</head>
+<body>
+
+<div class="login-container">
+
+  <div class="login-header">
+    <div class="tag">Ambiente de Estudo</div>
+    <h1>Psicologia <em>Moderna</em></h1>
+    <p>Faça login para salvar suas anotações na nuvem</p>
+  </div>
+
+  <div class="login-card">
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchTab('login')">Entrar</button>
+      <button class="auth-tab" onclick="switchTab('register')">Criar Conta</button>
+    </div>
+
+    <div class="message" id="message"></div>
+
+    <!-- LOGIN FORM -->
+    <div id="loginForm">
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" id="loginEmail" placeholder="seu@email.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Senha</label>
+        <input type="password" id="loginPassword" placeholder="••••••••" autocomplete="current-password">
+      </div>
+      <button class="submit-btn" onclick="handleLogin()" id="loginBtn">Entrar</button>
+    </div>
+
+    <!-- REGISTER FORM -->
+    <div id="registerForm" style="display:none">
+      <div class="form-group">
+        <label>Nome</label>
+        <input type="text" id="regName" placeholder="Seu nome" autocomplete="name">
+      </div>
+      <div class="form-group">
+        <label>E-mail</label>
+        <input type="email" id="regEmail" placeholder="seu@email.com" autocomplete="email">
+      </div>
+      <div class="form-group">
+        <label>Senha (mínimo 6 caracteres)</label>
+        <input type="password" id="regPassword" placeholder="••••••••" autocomplete="new-password">
+      </div>
+      <button class="submit-btn" onclick="handleRegister()" id="regBtn">Criar Conta</button>
+    </div>
+
+    <!-- SUPABASE CONFIG -->
+    <div class="config-panel">
+      <details>
+        <summary>⚙ Configurar Supabase</summary>
+        <div class="config-inputs">
+          <div class="form-group">
+            <label>Supabase URL</label>
+            <input type="text" id="cfgUrl" placeholder="https://xxxxx.supabase.co">
+          </div>
+          <div class="form-group">
+            <label>Anon Key</label>
+            <input type="text" id="cfgKey" placeholder="eyJhbGci...">
+          </div>
+          <button class="config-save" onclick="saveConfig()">Salvar configuração</button>
+        </div>
+      </details>
+    </div>
+  </div>
+
+  <div class="login-footer">
+    UNIFACS · Psicologia 2º semestre · Schultz & Schultz
+  </div>
+
+</div>
+
+<script>
+// ═══════════════════════════════════════
+// SUPABASE CONFIG
+// ═══════════════════════════════════════
+let SUPABASE_URL = localStorage.getItem('sb_url') || 'https://evvnxwfwzixslrfzyfir.supabase.co';
+let SUPABASE_KEY = localStorage.getItem('sb_key') || 'sb_publishable_woGJwyHN2N6LiksFAlVYag_2guzXHZZ';
+
+// Pre-fill config inputs
+window.addEventListener('DOMContentLoaded', () => {
+  document.getElementById('cfgUrl').value = SUPABASE_URL;
+  document.getElementById('cfgKey').value = SUPABASE_KEY;
+  checkExistingSession();
+});
+
+function saveConfig() {
+  SUPABASE_URL = document.getElementById('cfgUrl').value.trim().replace(/\/$/, '');
+  SUPABASE_KEY = document.getElementById('cfgKey').value.trim();
+  localStorage.setItem('sb_url', SUPABASE_URL);
+  localStorage.setItem('sb_key', SUPABASE_KEY);
+  showMessage('Configuração salva!', 'success');
+}
+
+function getHeaders(token) {
+  const h = {
+    'Content-Type': 'application/json',
+    'apikey': SUPABASE_KEY,
+    'Authorization': `Bearer ${token || SUPABASE_KEY}`
+  };
+  return h;
+}
+
+// ═══════════════════════════════════════
+// AUTH
+// ═══════════════════════════════════════
+async function handleLogin() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const password = document.getElementById('loginPassword').value;
+
+  if (!email || !password) return showMessage('Preencha todos os campos.', 'error');
+  if (!SUPABASE_URL || !SUPABASE_KEY) return showMessage('Configure o Supabase primeiro (⚙ abaixo).', 'error');
+
+  setLoading('loginBtn', true);
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/token?grant_type=password`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({ email, password })
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      showMessage(translateError(data.error.message || data.error), 'error');
+      setLoading('loginBtn', false);
+      return;
+    }
+
+    // Save session
+    localStorage.setItem('sb_session', JSON.stringify({
+      access_token: data.access_token,
+      refresh_token: data.refresh_token,
+      user: data.user
+    }));
+
+    showMessage('Login realizado! Redirecionando...', 'success');
+    setTimeout(() => window.location.href = 'index.html', 800);
+
+  } catch(e) {
+    showMessage('Erro de conexão. Verifique a configuração do Supabase.', 'error');
+    setLoading('loginBtn', false);
+  }
+}
+
+async function handleRegister() {
+  const name = document.getElementById('regName').value.trim();
+  const email = document.getElementById('regEmail').value.trim();
+  const password = document.getElementById('regPassword').value;
+
+  if (!name || !email || !password) return showMessage('Preencha todos os campos.', 'error');
+  if (password.length < 6) return showMessage('A senha deve ter pelo menos 6 caracteres.', 'error');
+  if (!SUPABASE_URL || !SUPABASE_KEY) return showMessage('Configure o Supabase primeiro (⚙ abaixo).', 'error');
+
+  setLoading('regBtn', true);
+
+  try {
+    const res = await fetch(`${SUPABASE_URL}/auth/v1/signup`, {
+      method: 'POST',
+      headers: getHeaders(),
+      body: JSON.stringify({
+        email,
+        password,
+        data: { name }
+      })
+    });
+
+    const data = await res.json();
+
+    if (data.error) {
+      showMessage(translateError(data.error.message || data.error), 'error');
+      setLoading('regBtn', false);
+      return;
+    }
+
+    if (data.user && !data.session) {
+      showMessage('Conta criada! Verifique seu e-mail para confirmar, ou faça login diretamente.', 'success');
+      switchTab('login');
+    } else if (data.access_token) {
+      localStorage.setItem('sb_session', JSON.stringify({
+        access_token: data.access_token,
+        refresh_token: data.refresh_token,
+        user: data.user
+      }));
+      showMessage('Conta criada! Redirecionando...', 'success');
+      setTimeout(() => window.location.href = 'index.html', 800);
+    } else {
+      showMessage('Conta criada! Faça login para continuar.', 'success');
+      switchTab('login');
+    }
+  } catch(e) {
+    showMessage('Erro de conexão. Verifique a configuração do Supabase.', 'error');
+    setLoading('regBtn', false);
+  }
+}
+
+function checkExistingSession() {
+  try {
+    const session = JSON.parse(localStorage.getItem('sb_session'));
+    if (session?.access_token) {
+      window.location.href = 'index.html';
+    }
+  } catch(e) {}
+}
+
+// ═══════════════════════════════════════
+// UI HELPERS
+// ═══════════════════════════════════════
+function switchTab(tab) {
+  document.querySelectorAll('.auth-tab').forEach(t => t.classList.remove('active'));
+  if (tab === 'login') {
+    document.querySelectorAll('.auth-tab')[0].classList.add('active');
+    document.getElementById('loginForm').style.display = 'block';
+    document.getElementById('registerForm').style.display = 'none';
+  } else {
+    document.querySelectorAll('.auth-tab')[1].classList.add('active');
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('registerForm').style.display = 'block';
+  }
+  hideMessage();
+}
+
+function showMessage(text, type) {
+  const el = document.getElementById('message');
+  el.textContent = text;
+  el.className = `message ${type}`;
+}
+
+function hideMessage() {
+  document.getElementById('message').className = 'message';
+}
+
+function setLoading(btnId, loading) {
+  const btn = document.getElementById(btnId);
+  if (loading) {
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Aguarde...';
+  } else {
+    btn.disabled = false;
+    btn.textContent = btnId === 'loginBtn' ? 'Entrar' : 'Criar Conta';
+  }
+}
+
+function translateError(msg) {
+  const map = {
+    'Invalid login credentials': 'E-mail ou senha incorretos.',
+    'User already registered': 'Este e-mail já está cadastrado.',
+    'Password should be at least 6 characters': 'A senha deve ter pelo menos 6 caracteres.',
+    'Unable to validate email address: invalid format': 'Formato de e-mail inválido.',
+    'Email not confirmed': 'Confirme seu e-mail antes de fazer login.',
+    'Signup requires a valid password': 'Insira uma senha válida.',
+  };
+  return map[msg] || msg;
+}
+
+// Enter key support
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') {
+    if (document.getElementById('loginForm').style.display !== 'none') {
+      handleLogin();
+    } else {
+      handleRegister();
+    }
+  }
+});
+</script>
+
+</body>
+</html>

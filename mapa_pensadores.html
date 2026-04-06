@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapa Mundi dos Pensadores — História da Psicologia Moderna</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+:root {
+  --bg: #08080c;
+  --surface: #101018;
+  --surface2: #16161f;
+  --border: #1e1e2e;
+  --text: #e8e5dc;
+  --text-dim: #706c78;
+  --gold: #c9a84c;
+  --gold-dim: rgba(201,168,76,0.12);
+  --gold-glow: rgba(201,168,76,0.25);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+/* ── Header ── */
+header {
+  padding: 20px 32px 14px;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  flex-shrink: 0;
+  z-index: 1000;
+}
+
+.header-top {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+.btn-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.btn-back:hover {
+  background: var(--gold-dim);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.btn-back:hover svg { transform: translateX(-3px); }
+.btn-back svg { transition: transform 0.2s; }
+
+.header-title h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 400;
+  color: var(--gold);
+  line-height: 1.2;
+}
+
+.header-title p {
+  font-size: 12px;
+  color: var(--text-dim);
+  font-weight: 300;
+  margin-top: 2px;
+}
+
+/* ── Controls ── */
+.controls {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.filter-label {
+  font-size: 11px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.filter-btn {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  color: var(--text-dim);
+  padding: 5px 12px;
+  border-radius: 16px;
+  font-size: 11px;
+  font-family: 'DM Sans', sans-serif;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.filter-btn:hover, .filter-btn.active {
+  background: var(--gold-dim);
+  border-color: var(--gold);
+  color: var(--gold);
+}
+
+.sep {
+  width: 1px;
+  height: 20px;
+  background: var(--border);
+}
+
+.period-range {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 11px;
+  color: var(--text-dim);
+}
+
+.period-range input[type=range] {
+  -webkit-appearance: none;
+  width: 120px;
+  height: 3px;
+  background: var(--border);
+  border-radius: 2px;
+  outline: none;
+  cursor: pointer;
+}
+
+.period-range input[type=range]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: var(--gold);
+  cursor: pointer;
+}
+
+.period-val {
+  color: var(--gold);
+  font-weight: 600;
+  min-width: 36px;
+  text-align: center;
+}
+
+.stats-pill {
+  margin-left: auto;
+  background: var(--gold-dim);
+  border: 1px solid rgba(201,168,76,0.3);
+  color: var(--gold);
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 11px;
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+/* ── Map ── */
+#map {
+  flex: 1;
+  z-index: 1;
+}
+
+/* Leaflet dark overrides */
+.leaflet-container {
+  background: #0d0d14 !important;
+}
+
+.leaflet-tile {
+  filter: brightness(0.55) saturate(0.4) hue-rotate(200deg);
+}
+
+/* ── Custom Popups ── */
+.leaflet-popup-content-wrapper {
+  background: var(--surface2) !important;
+  border: 1px solid var(--border) !important;
+  border-radius: 12px !important;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.6) !important;
+  padding: 0 !important;
+}
+
+.leaflet-popup-tip {
+  background: var(--surface2) !important;
+}
+
+.leaflet-popup-content {
+  margin: 0 !important;
+  min-width: 220px;
+}
+
+.popup-inner {
+  padding: 14px 16px;
+}
+
+.popup-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+
+.popup-dates {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+}
+
+.popup-cat {
+  display: inline-block;
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 8px;
+}
+
+.popup-locations {
+  font-size: 12px;
+  color: var(--text);
+  line-height: 1.6;
+}
+
+.popup-loc-item {
+  display: flex;
+  gap: 6px;
+  align-items: flex-start;
+  margin-bottom: 4px;
+}
+
+.popup-loc-type {
+  font-size: 10px;
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  white-space: nowrap;
+  padding-top: 1px;
+  min-width: 60px;
+}
+
+.popup-loc-name {
+  color: var(--text);
+  font-size: 12px;
+}
+
+/* ── Legend ── */
+.map-legend {
+  position: absolute;
+  bottom: 24px;
+  right: 12px;
+  z-index: 1000;
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 14px;
+  font-size: 11px;
+}
+
+.legend-title {
+  color: var(--text-dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-size: 10px;
+  margin-bottom: 8px;
+  font-weight: 500;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+  color: var(--text-dim);
+}
+
+.legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.legend-ring {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid;
+  flex-shrink: 0;
+  background: transparent;
+}
+
+/* ── Mode toggle ── */
+.mode-info {
+  font-size: 11px;
+  color: var(--text-dim);
+  padding: 4px 10px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+
+.mode-info span {
+  color: var(--gold);
+  font-weight: 500;
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <a class="btn-back" href="index.html">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+      Voltar
+    </a>
+    <div class="header-title">
+      <h1>Mapa Mundi dos Pensadores</h1>
+      <p>Geolocalização de nascimento e locais de atuação — Schultz & Schultz</p>
+    </div>
+  </div>
+
+  <div class="controls">
+    <div class="filter-group">
+      <span class="filter-label">Visualizar:</span>
+      <button class="filter-btn active" id="btnNasc" onclick="setMode('nascimento')">Nascimento</button>
+      <button class="filter-btn" id="btnAtua" onclick="setMode('atuacao')">Atuação</button>
+      <button class="filter-btn" id="btnAmbos" onclick="setMode('ambos')">Ambos</button>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="filter-group">
+      <span class="filter-label">Categoria:</span>
+      <button class="filter-btn active" data-cat="all" onclick="setCat(this,'all')">Todos</button>
+      <button class="filter-btn" data-cat="psicologo" onclick="setCat(this,'psicologo')">Psicólogo</button>
+      <button class="filter-btn" data-cat="filosofo" onclick="setCat(this,'filosofo')">Filósofo</button>
+      <button class="filter-btn" data-cat="fisiologo" onclick="setCat(this,'fisiologo')">Fisiologista</button>
+      <button class="filter-btn" data-cat="medico" onclick="setCat(this,'medico')">Médico</button>
+      <button class="filter-btn" data-cat="matematico" onclick="setCat(this,'matematico')">Matemático</button>
+      <button class="filter-btn" data-cat="naturalista" onclick="setCat(this,'naturalista')">Naturalista</button>
+    </div>
+
+    <div class="sep"></div>
+
+    <div class="filter-group period-range">
+      <span class="filter-label">Período:</span>
+      <input type="range" id="periodStart" min="1450" max="1950" value="1450" step="25" oninput="updatePeriod()">
+      <span class="period-val" id="valStart">1450</span>
+      <span style="color:var(--border)">—</span>
+      <input type="range" id="periodEnd" min="1500" max="2030" value="2030" step="25" oninput="updatePeriod()">
+      <span class="period-val" id="valEnd">2030</span>
+    </div>
+
+    <div class="stats-pill" id="statsPill">111 pensadores</div>
+  </div>
+</header>
+
+<div id="map"></div>
+
+<div class="map-legend">
+  <div class="legend-title">Legenda</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#c9a84c"></div> Nascimento</div>
+  <div class="legend-item"><div class="legend-ring" style="border-color:#6366f1"></div> Atuação / Trabalho</div>
+  <div class="legend-item" style="margin-top:8px;border-top:1px solid var(--border);padding-top:8px;">
+    <div class="legend-dot" style="background:#22c55e"></div> Psicólogo
+  </div>
+  <div class="legend-item"><div class="legend-dot" style="background:#a78bfa"></div> Filósofo</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f97316"></div> Fisiologista</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#f43f5e"></div> Médico</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#38bdf8"></div> Matemático</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#84cc16"></div> Naturalista</div>
+  <div class="legend-item"><div class="legend-dot" style="background:#fb923c"></div> Sociólogo</div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// DATASET — 111 pensadores com coordenadas de nascimento e atuação
+// ═══════════════════════════════════════════════════════════════
+const THINKERS = [
+  // FILÓSOFOS
+  { name:"Copérnico", birth:1473, death:1543, cat:"filosofo",
+    born:{ city:"Toruń, Polônia", lat:53.01, lng:18.60 },
+    worked:[
+      { place:"Universidade de Cracóvia", city:"Cracóvia, Polônia", lat:50.06, lng:19.94, from:1491, to:1495 },
+      { place:"Universidade de Bolonha", city:"Bolonha, Itália", lat:44.49, lng:11.34, from:1496, to:1501 },
+      { place:"Frombork", city:"Frombork, Polônia", lat:54.36, lng:19.68, from:1510, to:1543 }
+    ]},
+  { name:"Juan Luis Vives", birth:1492, death:1540, cat:"filosofo",
+    born:{ city:"Valência, Espanha", lat:39.47, lng:-0.37 },
+    worked:[
+      { place:"Universidade de Paris", city:"Paris, França", lat:48.85, lng:2.35, from:1509, to:1512 },
+      { place:"Universidade de Lovaina", city:"Lovaina, Bélgica", lat:50.88, lng:4.70, from:1517, to:1523 },
+      { place:"Oxford", city:"Oxford, Inglaterra", lat:51.75, lng:-1.25, from:1523, to:1528 }
+    ]},
+  { name:"Juan Huarte", birth:1530, death:1592, cat:"filosofo",
+    born:{ city:"San Juan de Pie de Puerto, Espanha", lat:43.16, lng:-1.24 },
+    worked:[
+      { place:"Baeza", city:"Baeza, Espanha", lat:37.99, lng:-3.47, from:1560, to:1592 }
+    ]},
+  { name:"Thomas Hobbes", birth:1588, death:1679, cat:"filosofo",
+    born:{ city:"Malmesbury, Inglaterra", lat:51.58, lng:-2.09 },
+    worked:[
+      { place:"Oxford (Magdalen Hall)", city:"Oxford, Inglaterra", lat:51.75, lng:-1.25, from:1603, to:1608 },
+      { place:"Londres", city:"Londres, Inglaterra", lat:51.51, lng:-0.12, from:1608, to:1679 },
+      { place:"Paris", city:"Paris, França", lat:48.85, lng:2.35, from:1640, to:1651 }
+    ]},
+  { name:"René Descartes", birth:1596, death:1650, cat:"filosofo",
+    born:{ city:"La Haye en Touraine, França", lat:46.97, lng:0.70 },
+    worked:[
+      { place:"Universidade de Poitiers", city:"Poitiers, França", lat:46.58, lng:0.34, from:1614, to:1616 },
+      { place:"Países Baixos (Leiden/Amsterdam)", city:"Amsterdam, Holanda", lat:52.37, lng:4.90, from:1628, to:1649 },
+      { place:"Estocolmo (Corte de Cristina)", city:"Estocolmo, Suécia", lat:59.33, lng:18.07, from:1649, to:1650 }
+    ]},
+  { name:"John Locke", birth:1632, death:1704, cat:"filosofo",
+    born:{ city:"Wrington, Inglaterra", lat:51.37, lng:-2.77 },
+    worked:[
+      { place:"Christ Church, Oxford", city:"Oxford, Inglaterra", lat:51.75, lng:-1.25, from:1652, to:1667 },
+      { place:"Londres (Royal Society)", city:"Londres, Inglaterra", lat:51.51, lng:-0.12, from:1667, to:1683 },
+      { place:"Países Baixos (exílio)", city:"Amsterdam, Holanda", lat:52.37, lng:4.90, from:1683, to:1689 }
+    ]},
+  { name:"Gottfried W. Leibniz", birth:1646, death:1716, cat:"filosofo",
+    born:{ city:"Leipzig, Alemanha", lat:51.34, lng:12.38 },
+    worked:[
+      { place:"Universidade de Leipzig", city:"Leipzig, Alemanha", lat:51.34, lng:12.38, from:1661, to:1666 },
+      { place:"Hannover (Biblioteca Real)", city:"Hannover, Alemanha", lat:52.37, lng:9.73, from:1676, to:1716 },
+      { place:"Berlim (Academia de Ciências)", city:"Berlim, Alemanha", lat:52.52, lng:13.40, from:1700, to:1716 }
+    ]},
+  { name:"George Berkeley", birth:1685, death:1753, cat:"filosofo",
+    born:{ city:"Kilkenny, Irlanda", lat:52.65, lng:-7.25 },
+    worked:[
+      { place:"Trinity College Dublin", city:"Dublin, Irlanda", lat:53.34, lng:-6.26, from:1700, to:1724 },
+      { place:"Newport, Rhode Island", city:"Newport, EUA", lat:41.49, lng:-71.31, from:1728, to:1731 }
+    ]},
+  { name:"Immanuel Kant", birth:1724, death:1804, cat:"filosofo",
+    born:{ city:"Königsberg, Prússia (Kaliningrado)", lat:54.71, lng:20.51 },
+    worked:[
+      { place:"Universidade de Königsberg", city:"Kaliningrado, Rússia", lat:54.71, lng:20.51, from:1755, to:1804 }
+    ]},
+  { name:"James Mill", birth:1773, death:1836, cat:"filosofo",
+    born:{ city:"Northwater Bridge, Escócia", lat:56.72, lng:-2.56 },
+    worked:[
+      { place:"Universidade de Edimburgo", city:"Edimburgo, Escócia", lat:55.95, lng:-3.19, from:1790, to:1798 },
+      { place:"Londres", city:"Londres, Inglaterra", lat:51.51, lng:-0.12, from:1802, to:1836 }
+    ]},
+  { name:"Johann F. Herbart", birth:1776, death:1841, cat:"filosofo",
+    born:{ city:"Oldenburg, Alemanha", lat:53.14, lng:8.21 },
+    worked:[
+      { place:"Universidade de Göttingen", city:"Göttingen, Alemanha", lat:51.54, lng:9.93, from:1805, to:1833 },
+      { place:"Universidade de Königsberg", city:"Kaliningrado, Rússia", lat:54.71, lng:20.51, from:1833, to:1841 }
+    ]},
+  { name:"Auguste Comte", birth:1798, death:1857, cat:"filosofo",
+    born:{ city:"Montpellier, França", lat:43.61, lng:3.88 },
+    worked:[
+      { place:"École Polytechnique", city:"Paris, França", lat:48.85, lng:2.35, from:1817, to:1857 }
+    ]},
+  { name:"John Stuart Mill", birth:1806, death:1873, cat:"filosofo",
+    born:{ city:"Londres, Inglaterra", lat:51.51, lng:-0.12 },
+    worked:[
+      { place:"East India Company", city:"Londres, Inglaterra", lat:51.51, lng:-0.12, from:1823, to:1858 },
+      { place:"Parlamento Britânico", city:"Londres, Inglaterra", lat:51.50, lng:-0.12, from:1865, to:1868 }
+    ]},
+  { name:"Franz Brentano", birth:1838, death:1917, cat:"filosofo",
+    born:{ city:"Marienberg am Rhein, Alemanha", lat:50.26, lng:7.61 },
+    worked:[
+      { place:"Universidade de Würzburg", city:"Würzburg, Alemanha", lat:49.80, lng:9.93, from:1866, to:1873 },
+      { place:"Universidade de Viena", city:"Viena, Áustria", lat:48.21, lng:16.37, from:1874, to:1895 }
+    ]},
+  { name:"John Dewey", birth:1859, death:1952, cat:"filosofo",
+    born:{ city:"Burlington, Vermont, EUA", lat:44.48, lng:-73.21 },
+    worked:[
+      { place:"Universidade de Michigan", city:"Ann Arbor, EUA", lat:42.28, lng:-83.74, from:1884, to:1894 },
+      { place:"Universidade de Chicago", city:"Chicago, EUA", lat:41.79, lng:-87.60, from:1894, to:1904 },
+      { place:"Universidade Columbia", city:"Nova York, EUA", lat:40.81, lng:-73.96, from:1904, to:1952 }
+    ]},
+
+  // FISIOLOGISTAS
+  { name:"Luigi Galvani", birth:1737, death:1798, cat:"fisiologo",
+    born:{ city:"Bolonha, Itália", lat:44.49, lng:11.34 },
+    worked:[
+      { place:"Universidade de Bolonha", city:"Bolonha, Itália", lat:44.49, lng:11.35, from:1762, to:1798 }
+    ]},
+  { name:"Alessandro Volta", birth:1745, death:1827, cat:"fisiologo",
+    born:{ city:"Como, Itália", lat:45.81, lng:9.09 },
+    worked:[
+      { place:"Universidade de Pavia", city:"Pavia, Itália", lat:45.18, lng:9.16, from:1779, to:1819 }
+    ]},
+  { name:"Josef Gall", birth:1758, death:1828, cat:"fisiologo",
+    born:{ city:"Tiefenbronn, Alemanha", lat:48.83, lng:8.76 },
+    worked:[
+      { place:"Viena", city:"Viena, Áustria", lat:48.21, lng:16.37, from:1785, to:1807 },
+      { place:"Paris", city:"Paris, França", lat:48.85, lng:2.35, from:1807, to:1828 }
+    ]},
+  { name:"Marshall Hall", birth:1790, death:1857, cat:"fisiologo",
+    born:{ city:"Basford, Nottinghamshire, Inglaterra", lat:52.97, lng:-1.18 },
+    worked:[
+      { place:"Universidade de Edimburgo", city:"Edimburgo, Escócia", lat:55.95, lng:-3.19, from:1809, to:1812 },
+      { place:"Londres", city:"Londres, Inglaterra", lat:51.51, lng:-0.13, from:1826, to:1857 }
+    ]},
+  { name:"Pierre Flourens", birth:1794, death:1867, cat:"fisiologo",
+    born:{ city:"Maureilhan, França", lat:43.46, lng:3.11 },
+    worked:[
+      { place:"Museu Nacional de História Natural", city:"Paris, França", lat:48.85, lng:2.36, from:1828, to:1867 }
+    ]},
+  { name:"Ernst Weber", birth:1795, death:1878, cat:"fisiologo",
+    born:{ city:"Wittenberg, Alemanha", lat:51.87, lng:12.64 },
+    worked:[
+      { place:"Universidade de Leipzig", city:"Leipzig, Alemanha", lat:51.34, lng:12.37, from:1818, to:1871 }
+    ]},
+  { name:"Johannes Müller", birth:1801, death:1858, cat:"fisiologo",
+    born:{ city:"Koblenz, Alemanha", lat:50.36, lng:7.60 },
+    worked:[
+      { place:"Universidade de Bonn", city:"Bonn, Alemanha", lat:50.73, lng:7.10, from:1826, to:1833 },
+      { place:"Universidade de Berlim", city:"Berlim, Alemanha", lat:52.52, lng:13.39, from:1833, to:1858 }
+    ]},
+  { name:"Hermann von Helmholtz", birth:1821, death:1894, cat:"fisiologo",
+    born:{ city:"Potsdam, Alemanha", lat:52.39, lng:13.06 },
+    worked:[
+      { place:"Universidade de Königsberg", city:"Kaliningrado, Rússia", lat:54.71, lng:20.51, from:1849, to:1855 },
+      { place:"Universidade de Heidelberg", city:"Heidelberg, Alemanha", lat:49.40, lng:8.69, from:1858, to:1871 },
+      { place:"Universidade de Berlim", city:"Berlim, Alemanha", lat:52.52, lng:13.40, from:1871, to:1894 }
+    ]},
+  { name:"Paul Broca", birth:1824, death:1880, cat:"fisiologo",
+    born:{ city:"Sainte-Foy-la-Grande, França", lat:44.84, lng:0.22 },
+    worked:[
+      { place:"Hôpital Bicêtre / Salpêtrière", city:"Paris, França", lat:48.82, lng:2.35, from:1848, to:1880 }
+    ]},
+  { name:"Santiago Ramón y Cajal", birth:1852, death:1934, cat:"fisiologo",
+    born:{ city:"Petilla de Aragón, Espanha", lat:42.53, lng:-1.10 },
+    worked:[
+      { place:"Universidade de Valência", city:"Valência, Espanha", lat:39.47, lng:-0.38, from:1884, to:1887 },
+      { place:"Universidade de Barcelona", city:"Barcelona, Espanha", lat:41.39, lng:2.16, from:1887, to:1892 },
+      { place:"Universidade de Madrid", city:"Madrid, Espanha", lat:40.42, lng:-3.70, from:1892, to:1934 }
+    ]},
+
+  // MÉDICOS
+  { name:"Franz Anton Mesmer", birth:1734, death:1815, cat:"medico",
+    born:{ city:"Iznang, Alemanha", lat:47.79, lng:9.00 },
+    worked:[
+      { place:"Universidade de Viena", city:"Viena, Áustria", lat:48.21, lng:16.37, from:1759, to:1778 },
+      { place:"Paris", city:"Paris, França", lat:48.85, lng:2.35, from:1778, to:1785 }
+    ]},
+  { name:"Philippe Pinel", birth:1745, death:1826, cat:"medico",
+    born:{ city:"Jonquières, França", lat:43.67, lng:1.77 },
+    worked:[
+      { place:"Bicêtre / Salpêtrière", city:"Paris, França", lat:48.82, lng:2.35, from:1793, to:1826 }
+    ]},
+  { name:"Benjamín Rush", birth:1745, death:1813, cat:"medico",
+    born:{ city:"Byberry, Pensilvânia, EUA", lat:40.10, lng:-75.03 },
+    worked:[
+      { place:"Universidade da Pensilvânia", city:"Filadélfia, EUA", lat:39.95, lng:-75.19, from:1769, to:1813 }
+    ]},
+  { name:"James Braid", birth:1795, death:1860, cat:"medico",
+    born:{ city:"Rylawhouse, Escócia", lat:56.10, lng:-3.40 },
+    worked:[
+      { place:"Manchester", city:"Manchester, Inglaterra", lat:53.48, lng:-2.24, from:1828, to:1860 }
+    ]},
+  { name:"Jean-Martin Charcot", birth:1825, death:1893, cat:"medico",
+    born:{ city:"Paris, França", lat:48.85, lng:2.35 },
+    worked:[
+      { place:"Hôpital Salpêtrière", city:"Paris, França", lat:48.82, lng:2.36, from:1862, to:1893 }
+    ]},
+  { name:"Josef Breuer", birth:1842, death:1925, cat:"medico",
+    born:{ city:"Viena, Áustria", lat:48.21, lng:16.37 },
+    worked:[
+      { place:"Viena (clínica privada)", city:"Viena, Áustria", lat:48.21, lng:16.38, from:1867, to:1925 }
+    ]},
+  { name:"Pierre Janet", birth:1859, death:1947, cat:"medico",
+    born:{ city:"Paris, França", lat:48.85, lng:2.35 },
+    worked:[
+      { place:"Hôpital Salpêtrière", city:"Paris, França", lat:48.82, lng:2.36, from:1890, to:1910 },
+      { place:"Collège de France", city:"Paris, França", lat:48.85, lng:2.34, from:1902, to:1936 }
+    ]},
+  { name:"Dorothea Dix", birth:1802, death:1887, cat:"medico",
+    born:{ city:"Hampden, Maine, EUA", lat:44.74, lng:-68.84 },
+    worked:[
+      { place:"Boston / Washington D.C.", city:"Washington D.C., EUA", lat:38.89, lng:-77.03, from:1840, to:1887 }
+    ]},
+
+  // NATURALISTAS
+  { name:"J.B. Lamarck", birth:1744, death:1829, cat:"naturalista",
+    born:{ city:"Bazentin, França", lat:50.06, lng:2.73 },
+    worked:[
+      { place:"Museu Nacional de História Natural", city:"Paris, França", lat:48.84, lng:2.35, from:1793, to:1829 }
+    ]},
+  { name:"Charles Lyell", birth:1797, death:1875, cat:"naturalista",
+    born:{ city:"Kinnordy, Escócia", lat:56.67, lng:-3.01 },
+    worked:[
+      { place:"Londres (Geological Society)", city:"Londres, Inglaterra", lat:51.51, lng:-0.12, from:1820, to:1875 }
+    ]},
+  { name:"Charles Darwin", birth:1809, death:1882, cat:"naturalista",
+    born:{ city:"Shrewsbury, Inglaterra", lat:52.71, lng:-2.75 },
+    worked:[
+      { place:"Universidade de Cambridge", city:"Cambridge, Inglaterra", lat:52.20, lng:0.12, from:1828, to:1831 },
+      { place:"Down House", city:"Downe, Kent, Inglaterra", lat:51.33, lng:0.04, from:1842, to:1882 }
+    ]},
+  { name:"Herbert Spencer", birth:1820, death:1903, cat:"sociologo",
+    born:{ city:"Derby, Inglaterra", lat:52.92, lng:-1.47 },
+    worked:[
+      { place:"Londres", city:"Londres, Inglaterra", lat:51.51, lng:-0.12, from:1848, to:1903 }
+    ]},
+  { name:"Thomas H. Huxley", birth:1825, death:1895, cat:"naturalista",
+    born:{ city:"Ealing, Londres, Inglaterra", lat:51.51, lng:-0.31 },
+    worked:[
+      { place:"Royal School of Mines", city:"Londres, Inglaterra", lat:51.50, lng:-0.17, from:1854, to:1885 }
+    ]},
+  { name:"Samuel Butler", birth:1835, death:1902, cat:"naturalista",
+    born:{ city:"Langar, Nottinghamshire, Inglaterra", lat:52.91, lng:-0.93 },
+    worked:[
+      { place:"Nova Zelândia / Londres", city:"Londres, Inglaterra", lat:51.51, lng:-0.12, from:1864, to:1902 }
+    ]},
+  { name:"George J. Romanes", birth:1848, death:1894, cat:"naturalista",
+    born:{ city:"Kingston, Canadá", lat:44.23, lng:-76.49 },
+    worked:[
+      { place:"Universidade de Cambridge", city:"Cambridge, Inglaterra", lat:52.20, lng:0.12, from:1867, to:1875 },
+      { place:"Londres (Royal Institution)", city:"Londres, Inglaterra", lat:51.51, lng:-0.13, from:1875, to:1894 }
+    ]},
+  { name:"C. Lloyd Morgan", birth:1852, death:1936, cat:"naturalista",
+    born:{ city:"Londres, Inglaterra", lat:51.51, lng:-0.12 },
+    worked:[
+      { place:"Universidade de Bristol", city:"Bristol, Inglaterra", lat:51.46, lng:-2.60, from:1884, to:1919 }
+    ]},
+
+  // MATEMÁTICOS / FÍSICOS
+  { name:"Isaac Newton", birth:1642, death:1727, cat:"matematico",
+    born:{ city:"Woolsthorpe-by-Colsterworth, Inglaterra", lat:52.81, lng:-0.64 },
+    worked:[
+      { place:"Universidade de Cambridge (Trinity College)", city:"Cambridge, Inglaterra", lat:52.20, lng:0.12, from:1661, to:1696 },
+      { place:"Royal Mint / Royal Society", city:"Londres, Inglaterra", lat:51.51, lng:-0.12, from:1696, to:1727 }
+    ]},
+  { name:"Nevil Maskelyne", birth:1732, death:1811, cat:"matematico",
+    born:{ city:"Londres, Inglaterra", lat:51.51, lng:-0.12 },
+    worked:[
+      { place:"Observatório Real de Greenwich", city:"Greenwich, Londres", lat:51.48, lng:0.00, from:1765, to:1811 }
+    ]},
+  { name:"F.W. Bessel", birth:1784, death:1846, cat:"matematico",
+    born:{ city:"Minden, Alemanha", lat:52.29, lng:8.91 },
+    worked:[
+      { place:"Observatório de Königsberg", city:"Kaliningrado, Rússia", lat:54.71, lng:20.51, from:1810, to:1846 }
+    ]},
+  { name:"Charles Babbage", birth:1791, death:1871, cat:"matematico",
+    born:{ city:"Londres, Inglaterra", lat:51.51, lng:-0.12 },
+    worked:[
+      { place:"Universidade de Cambridge", city:"Cambridge, Inglaterra", lat:52.20, lng:0.12, from:1810, to:1820 },
+      { place:"Londres", city:"Londres, Inglaterra", lat:51.51, lng:-0.13, from:1820, to:1871 }
+    ]},
+  { name:"Ada Lovelace", birth:1815, death:1852, cat:"matematico",
+    born:{ city:"Londres, Inglaterra", lat:51.51, lng:-0.12 },
+    worked:[
+      { place:"Londres / Surrey", city:"Londres, Inglaterra", lat:51.51, lng:-0.12, from:1833, to:1852 }
+    ]},
+  { name:"Adolph Quetelet", birth:1796, death:1874, cat:"matematico",
+    born:{ city:"Ghent, Bélgica", lat:51.05, lng:3.72 },
+    worked:[
+      { place:"Observatório Real de Bruxelas", city:"Bruxelas, Bélgica", lat:50.85, lng:4.35, from:1828, to:1874 }
+    ]},
+  { name:"Karl Pearson", birth:1857, death:1936, cat:"matematico",
+    born:{ city:"Islington, Londres, Inglaterra", lat:51.54, lng:-0.10 },
+    worked:[
+      { place:"University College London", city:"Londres, Inglaterra", lat:51.52, lng:-0.13, from:1884, to:1933 }
+    ]},
+  { name:"Ernst Mach", birth:1838, death:1916, cat:"matematico",
+    born:{ city:"Chrlice, República Tcheca", lat:49.14, lng:16.65 },
+    worked:[
+      { place:"Universidade de Graz", city:"Graz, Áustria", lat:47.07, lng:15.44, from:1864, to:1867 },
+      { place:"Universidade de Praga", city:"Praga, República Tcheca", lat:50.08, lng:14.42, from:1867, to:1895 },
+      { place:"Universidade de Viena", city:"Viena, Áustria", lat:48.21, lng:16.37, from:1895, to:1901 }
+    ]},
+  { name:"Percy Bridgman", birth:1882, death:1961, cat:"matematico",
+    born:{ city:"Cambridge, Massachusetts, EUA", lat:42.37, lng:-71.11 },
+    worked:[
+      { place:"Universidade Harvard", city:"Cambridge, EUA", lat:42.37, lng:-71.12, from:1908, to:1954 }
+    ]},
+  { name:"Alan Turing", birth:1912, death:1954, cat:"matematico",
+    born:{ city:"Londres, Inglaterra", lat:51.51, lng:-0.12 },
+    worked:[
+      { place:"Universidade de Cambridge", city:"Cambridge, Inglaterra", lat:52.20, lng:0.12, from:1931, to:1938 },
+      { place:"Bletchley Park", city:"Milton Keynes, Inglaterra", lat:51.99, lng:-0.74, from:1939, to:1945 },
+      { place:"Universidade de Manchester", city:"Manchester, Inglaterra", lat:53.47, lng:-2.23, from:1948, to:1954 }
+    ]},
+  { name:"Henry Hollerith", birth:1859, death:1929, cat:"matematico",
+    born:{ city:"Buffalo, Nova York, EUA", lat:42.89, lng:-78.87 },
+    worked:[
+      { place:"MIT / Washington D.C.", city:"Washington D.C., EUA", lat:38.89, lng:-77.04, from:1882, to:1929 }
+    ]},
+
+  // PSICÓLOGOS
+  { name:"Gustav T. Fechner", birth:1801, death:1887, cat:"psicologo",
+    born:{ city:"Groß Särchen, Alemanha", lat:51.52, lng:14.44 },
+    worked:[
+      { place:"Universidade de Leipzig", city:"Leipzig, Alemanha", lat:51.34, lng:12.37, from:1834, to:1887 }
+    ]},
+  { name:"Francis Galton", birth:1822, death:1911, cat:"psicologo",
+    born:{ city:"Birmingham, Inglaterra", lat:52.48, lng:-1.90 },
+    worked:[
+      { place:"Kensington / Londres", city:"Londres, Inglaterra", lat:51.50, lng:-0.18, from:1860, to:1911 }
+    ]},
+  { name:"Wilhelm Wundt", birth:1832, death:1920, cat:"psicologo",
+    born:{ city:"Neckarau, Baden, Alemanha", lat:49.46, lng:8.51 },
+    worked:[
+      { place:"Universidade de Heidelberg", city:"Heidelberg, Alemanha", lat:49.40, lng:8.69, from:1858, to:1874 },
+      { place:"Universidade de Leipzig (1º Lab. de Psicologia)", city:"Leipzig, Alemanha", lat:51.34, lng:12.38, from:1875, to:1920 }
+    ]},
+  { name:"Carl Stumpf", birth:1848, death:1936, cat:"psicologo",
+    born:{ city:"Wiesentheid, Alemanha", lat:49.79, lng:10.34 },
+    worked:[
+      { place:"Universidade de Berlim", city:"Berlim, Alemanha", lat:52.52, lng:13.40, from:1894, to:1921 }
+    ]},
+  { name:"G. Stanley Hall", birth:1844, death:1924, cat:"psicologo",
+    born:{ city:"Ashfield, Massachusetts, EUA", lat:42.52, lng:-72.78 },
+    worked:[
+      { place:"Johns Hopkins University", city:"Baltimore, EUA", lat:39.33, lng:-76.62, from:1882, to:1888 },
+      { place:"Clark University", city:"Worcester, EUA", lat:42.25, lng:-71.82, from:1888, to:1924 }
+    ]},
+  { name:"William James", birth:1842, death:1910, cat:"psicologo",
+    born:{ city:"Nova York, EUA", lat:40.71, lng:-74.01 },
+    worked:[
+      { place:"Universidade Harvard", city:"Cambridge, EUA", lat:42.37, lng:-71.12, from:1872, to:1910 }
+    ]},
+  { name:"Hermann Ebbinghaus", birth:1850, death:1909, cat:"psicologo",
+    born:{ city:"Barmen, Alemanha (Wuppertal)", lat:51.26, lng:7.15 },
+    worked:[
+      { place:"Universidade de Berlim", city:"Berlim, Alemanha", lat:52.52, lng:13.39, from:1880, to:1894 },
+      { place:"Universidade de Breslau (Wrocław)", city:"Wrocław, Polônia", lat:51.11, lng:17.04, from:1894, to:1905 }
+    ]},
+  { name:"Sigmund Freud", birth:1856, death:1939, cat:"psicologo",
+    born:{ city:"Příbor, República Tcheca", lat:49.64, lng:18.15 },
+    worked:[
+      { place:"Universidade de Viena / Clínica", city:"Viena, Áustria", lat:48.21, lng:16.37, from:1882, to:1938 },
+      { place:"Londres (exílio)", city:"Londres, Inglaterra", lat:51.54, lng:-0.18, from:1938, to:1939 }
+    ]},
+  { name:"Alfred Binet", birth:1857, death:1911, cat:"psicologo",
+    born:{ city:"Nice, França", lat:43.71, lng:7.26 },
+    worked:[
+      { place:"Sorbonne / Laboratório de Psicologia Fisiológica", city:"Paris, França", lat:48.85, lng:2.34, from:1891, to:1911 }
+    ]},
+  { name:"Christian von Ehrenfels", birth:1859, death:1932, cat:"psicologo",
+    born:{ city:"Rodaun, Áustria", lat:48.13, lng:16.24 },
+    worked:[
+      { place:"Universidade de Praga", city:"Praga, República Tcheca", lat:50.08, lng:14.42, from:1896, to:1929 }
+    ]},
+  { name:"Jacques Loeb", birth:1859, death:1924, cat:"psicologo",
+    born:{ city:"Mayen, Alemanha", lat:50.33, lng:7.22 },
+    worked:[
+      { place:"Universidade de Chicago", city:"Chicago, EUA", lat:41.79, lng:-87.60, from:1892, to:1902 },
+      { place:"Universidade da Califórnia (Berkeley)", city:"Berkeley, EUA", lat:37.87, lng:-122.26, from:1902, to:1910 }
+    ]},
+  { name:"Oswald Külpe", birth:1862, death:1915, cat:"psicologo",
+    born:{ city:"Kandava, Letônia", lat:57.03, lng:22.78 },
+    worked:[
+      { place:"Universidade de Würzburg", city:"Würzburg, Alemanha", lat:49.80, lng:9.93, from:1896, to:1909 },
+      { place:"Universidade de Munique", city:"Munique, Alemanha", lat:48.15, lng:11.58, from:1913, to:1915 }
+    ]},
+  { name:"Hugo Münsterberg", birth:1863, death:1916, cat:"psicologo",
+    born:{ city:"Danzig (Gdańsk), Polônia", lat:54.35, lng:18.65 },
+    worked:[
+      { place:"Universidade de Freiburg", city:"Freiburg, Alemanha", lat:47.99, lng:7.84, from:1889, to:1892 },
+      { place:"Universidade Harvard", city:"Cambridge, EUA", lat:42.37, lng:-71.12, from:1892, to:1916 }
+    ]},
+  { name:"Mary W. Calkins", birth:1863, death:1930, cat:"psicologo",
+    born:{ city:"Hartford, Connecticut, EUA", lat:41.76, lng:-72.68 },
+    worked:[
+      { place:"Wellesley College", city:"Wellesley, EUA", lat:42.29, lng:-71.30, from:1887, to:1930 }
+    ]},
+  { name:"Joseph Jastrow", birth:1863, death:1944, cat:"psicologo",
+    born:{ city:"Varsóvia, Polônia", lat:52.23, lng:21.01 },
+    worked:[
+      { place:"Universidade de Wisconsin", city:"Madison, EUA", lat:43.07, lng:-89.40, from:1888, to:1927 }
+    ]},
+  { name:"James M. Cattell", birth:1860, death:1944, cat:"psicologo",
+    born:{ city:"Easton, Pensilvânia, EUA", lat:40.69, lng:-75.22 },
+    worked:[
+      { place:"Universidade de Leipzig (com Wundt)", city:"Leipzig, Alemanha", lat:51.34, lng:12.38, from:1883, to:1886 },
+      { place:"Universidade Columbia", city:"Nova York, EUA", lat:40.81, lng:-73.96, from:1891, to:1917 }
+    ]},
+  { name:"James M. Baldwin", birth:1861, death:1934, cat:"psicologo",
+    born:{ city:"Columbia, Carolina do Sul, EUA", lat:34.00, lng:-81.03 },
+    worked:[
+      { place:"Universidade de Toronto", city:"Toronto, Canadá", lat:43.66, lng:-79.39, from:1889, to:1893 },
+      { place:"Johns Hopkins University", city:"Baltimore, EUA", lat:39.33, lng:-76.62, from:1903, to:1909 }
+    ]},
+  { name:"Henry Goddard", birth:1866, death:1957, cat:"psicologo",
+    born:{ city:"Vassalboro, Maine, EUA", lat:44.44, lng:-69.66 },
+    worked:[
+      { place:"Vineland Training School", city:"Vineland, NJ, EUA", lat:39.49, lng:-75.02, from:1906, to:1918 }
+    ]},
+  { name:"Charles H. Turner", birth:1867, death:1923, cat:"psicologo",
+    born:{ city:"Cincinnati, Ohio, EUA", lat:39.10, lng:-84.51 },
+    worked:[
+      { place:"Sumner High School", city:"St. Louis, EUA", lat:38.63, lng:-90.20, from:1908, to:1923 }
+    ]},
+  { name:"E.B. Titchener", birth:1867, death:1927, cat:"psicologo",
+    born:{ city:"Chichester, Inglaterra", lat:50.84, lng:-0.78 },
+    worked:[
+      { place:"Universidade de Leipzig (com Wundt)", city:"Leipzig, Alemanha", lat:51.34, lng:12.38, from:1890, to:1892 },
+      { place:"Cornell University", city:"Ithaca, EUA", lat:42.45, lng:-76.48, from:1892, to:1927 }
+    ]},
+  { name:"Lightner Witmer", birth:1867, death:1956, cat:"psicologo",
+    born:{ city:"Filadélfia, Pensilvânia, EUA", lat:39.95, lng:-75.16 },
+    worked:[
+      { place:"Universidade da Pensilvânia (1ª Clínica Psicológica)", city:"Filadélfia, EUA", lat:39.95, lng:-75.19, from:1896, to:1937 }
+    ]},
+  { name:"J.R. Angell", birth:1869, death:1949, cat:"psicologo",
+    born:{ city:"Burlington, Vermont, EUA", lat:44.48, lng:-73.21 },
+    worked:[
+      { place:"Universidade de Chicago", city:"Chicago, EUA", lat:41.79, lng:-87.60, from:1894, to:1919 },
+      { place:"Universidade Yale", city:"New Haven, EUA", lat:41.31, lng:-72.92, from:1921, to:1937 }
+    ]},
+  { name:"R.S. Woodworth", birth:1869, death:1962, cat:"psicologo",
+    born:{ city:"Belchertown, Massachusetts, EUA", lat:42.28, lng:-72.41 },
+    worked:[
+      { place:"Universidade Columbia", city:"Nova York, EUA", lat:40.81, lng:-73.96, from:1903, to:1958 }
+    ]},
+  { name:"Walter Dill Scott", birth:1869, death:1955, cat:"psicologo",
+    born:{ city:"Cooksville, Illinois, EUA", lat:40.55, lng:-88.72 },
+    worked:[
+      { place:"Northwestern University", city:"Evanston, EUA", lat:42.05, lng:-87.67, from:1901, to:1920 }
+    ]},
+  { name:"Alfred Adler", birth:1870, death:1937, cat:"psicologo",
+    born:{ city:"Rudolfsheim, Viena, Áustria", lat:48.20, lng:16.33 },
+    worked:[
+      { place:"Viena (clínica e sociedade psicanalítica)", city:"Viena, Áustria", lat:48.21, lng:16.37, from:1898, to:1926 },
+      { place:"Nova York", city:"Nova York, EUA", lat:40.71, lng:-74.01, from:1926, to:1937 }
+    ]},
+  { name:"William McDougall", birth:1871, death:1938, cat:"psicologo",
+    born:{ city:"Chadderton, Lancashire, Inglaterra", lat:53.55, lng:-2.13 },
+    worked:[
+      { place:"Universidade de Oxford", city:"Oxford, Inglaterra", lat:51.75, lng:-1.25, from:1904, to:1920 },
+      { place:"Universidade Harvard", city:"Cambridge, EUA", lat:42.37, lng:-71.12, from:1920, to:1927 },
+      { place:"Universidade Duke", city:"Durham, EUA", lat:35.99, lng:-78.90, from:1927, to:1938 }
+    ]},
+  { name:"Edwin B. Twitmyer", birth:1873, death:1943, cat:"psicologo",
+    born:{ city:"Norristown, Pensilvânia, EUA", lat:40.12, lng:-75.34 },
+    worked:[
+      { place:"Universidade da Pensilvânia", city:"Filadélfia, EUA", lat:39.95, lng:-75.19, from:1904, to:1943 }
+    ]},
+  { name:"E.L. Thorndike", birth:1874, death:1949, cat:"psicologo",
+    born:{ city:"Williamsburg, Massachusetts, EUA", lat:42.39, lng:-72.74 },
+    worked:[
+      { place:"Universidade Columbia", city:"Nova York, EUA", lat:40.81, lng:-73.96, from:1899, to:1940 }
+    ]},
+  { name:"Helen B.T. Woolley", birth:1874, death:1947, cat:"psicologo",
+    born:{ city:"Chicago, Illinois, EUA", lat:41.85, lng:-87.65 },
+    worked:[
+      { place:"Universidade de Cincinnati", city:"Cincinnati, EUA", lat:39.13, lng:-84.51, from:1911, to:1921 }
+    ]},
+  { name:"Carl Jung", birth:1875, death:1961, cat:"psicologo",
+    born:{ city:"Kesswil, Suíça", lat:47.60, lng:9.33 },
+    worked:[
+      { place:"Hospital Burghölzli (Zurique)", city:"Zurique, Suíça", lat:47.37, lng:8.55, from:1900, to:1909 },
+      { place:"Küsnacht (Instituto Jung)", city:"Küsnacht, Suíça", lat:47.32, lng:8.59, from:1909, to:1961 }
+    ]},
+  { name:"John B. Watson", birth:1878, death:1958, cat:"psicologo",
+    born:{ city:"Travelers Rest, Carolina do Sul, EUA", lat:34.97, lng:-82.43 },
+    worked:[
+      { place:"Universidade de Chicago", city:"Chicago, EUA", lat:41.79, lng:-87.60, from:1903, to:1908 },
+      { place:"Johns Hopkins University", city:"Baltimore, EUA", lat:39.33, lng:-76.62, from:1908, to:1920 }
+    ]},
+  { name:"Lillian M. Gilbreth", birth:1878, death:1972, cat:"psicologo",
+    born:{ city:"Oakland, Califórnia, EUA", lat:37.80, lng:-122.27 },
+    worked:[
+      { place:"Universidade de Purdue", city:"West Lafayette, EUA", lat:40.43, lng:-86.91, from:1935, to:1948 }
+    ]},
+  { name:"Max Wertheimer", birth:1880, death:1943, cat:"psicologo",
+    born:{ city:"Praga, República Tcheca", lat:50.08, lng:14.42 },
+    worked:[
+      { place:"Universidade de Frankfurt", city:"Frankfurt, Alemanha", lat:50.11, lng:8.68, from:1912, to:1929 },
+      { place:"Universidade de Berlim", city:"Berlim, Alemanha", lat:52.52, lng:13.40, from:1929, to:1933 },
+      { place:"New School for Social Research", city:"Nova York, EUA", lat:40.73, lng:-74.00, from:1933, to:1943 }
+    ]},
+  { name:"Clark L. Hull", birth:1884, death:1952, cat:"psicologo",
+    born:{ city:"Akron, Nova York, EUA", lat:43.02, lng:-78.49 },
+    worked:[
+      { place:"Universidade Yale", city:"New Haven, EUA", lat:41.31, lng:-72.92, from:1929, to:1952 }
+    ]},
+  { name:"Karen Horney", birth:1885, death:1952, cat:"psicologo",
+    born:{ city:"Blankenese, Hamburgo, Alemanha", lat:53.56, lng:9.80 },
+    worked:[
+      { place:"Instituto Psicanalítico de Berlim", city:"Berlim, Alemanha", lat:52.52, lng:13.40, from:1920, to:1932 },
+      { place:"Nova York", city:"Nova York, EUA", lat:40.71, lng:-74.01, from:1932, to:1952 }
+    ]},
+  { name:"Kurt Koffka", birth:1886, death:1941, cat:"psicologo",
+    born:{ city:"Berlim, Alemanha", lat:52.52, lng:13.40 },
+    worked:[
+      { place:"Universidade de Giessen", city:"Giessen, Alemanha", lat:50.58, lng:8.68, from:1911, to:1927 },
+      { place:"Smith College", city:"Northampton, EUA", lat:42.32, lng:-72.64, from:1927, to:1941 }
+    ]},
+  { name:"Leta S. Hollingworth", birth:1886, death:1939, cat:"psicologo",
+    born:{ city:"Dawes County, Nebraska, EUA", lat:42.72, lng:-103.10 },
+    worked:[
+      { place:"Universidade Columbia", city:"Nova York, EUA", lat:40.81, lng:-73.96, from:1916, to:1939 }
+    ]},
+  { name:"E.C. Tolman", birth:1886, death:1959, cat:"psicologo",
+    born:{ city:"West Newton, Massachusetts, EUA", lat:42.35, lng:-71.23 },
+    worked:[
+      { place:"Universidade da Califórnia (Berkeley)", city:"Berkeley, EUA", lat:37.87, lng:-122.26, from:1918, to:1954 }
+    ]},
+  { name:"Wolfgang Köhler", birth:1887, death:1967, cat:"psicologo",
+    born:{ city:"Reval (Tallinn), Estônia", lat:59.44, lng:24.75 },
+    worked:[
+      { place:"Estação de Pesquisa em Tenerife", city:"Tenerife, Espanha", lat:28.29, lng:-16.63, from:1913, to:1920 },
+      { place:"Universidade de Berlim", city:"Berlim, Alemanha", lat:52.52, lng:13.40, from:1920, to:1935 },
+      { place:"Swarthmore College", city:"Swarthmore, EUA", lat:39.90, lng:-75.35, from:1935, to:1958 }
+    ]},
+  { name:"Ivan Pavlov", birth:1849, death:1936, cat:"psicologo",
+    born:{ city:"Ryazan, Rússia", lat:54.63, lng:39.74 },
+    worked:[
+      { place:"Instituto de Medicina Experimental", city:"São Petersburgo, Rússia", lat:59.93, lng:30.32, from:1890, to:1936 }
+    ]},
+  { name:"Vladimir Bekhterev", birth:1857, death:1927, cat:"psicologo",
+    born:{ city:"Sorali, Rússia", lat:57.60, lng:50.00 },
+    worked:[
+      { place:"Universidade de Kazan", city:"Kazan, Rússia", lat:55.79, lng:49.12, from:1885, to:1893 },
+      { place:"São Petersburgo", city:"São Petersburgo, Rússia", lat:59.93, lng:30.32, from:1893, to:1927 }
+    ]},
+  { name:"Karl Lashley", birth:1890, death:1958, cat:"psicologo",
+    born:{ city:"Davis, Virgínia Ocidental, EUA", lat:39.45, lng:-79.47 },
+    worked:[
+      { place:"Universidade de Chicago", city:"Chicago, EUA", lat:41.79, lng:-87.60, from:1917, to:1926 },
+      { place:"Universidade Harvard", city:"Cambridge, EUA", lat:42.37, lng:-71.12, from:1935, to:1955 }
+    ]},
+  { name:"Kurt Lewin", birth:1890, death:1947, cat:"psicologo",
+    born:{ city:"Mogilno, Polônia", lat:52.66, lng:17.96 },
+    worked:[
+      { place:"Universidade de Berlim", city:"Berlim, Alemanha", lat:52.52, lng:13.40, from:1921, to:1933 },
+      { place:"MIT (Research Center for Group Dynamics)", city:"Cambridge, EUA", lat:42.36, lng:-71.09, from:1944, to:1947 }
+    ]},
+  { name:"Mark A. May", birth:1891, death:1977, cat:"psicologo",
+    born:{ city:"Sherwood, Tennessee, EUA", lat:35.05, lng:-85.92 },
+    worked:[
+      { place:"Universidade Yale", city:"New Haven, EUA", lat:41.31, lng:-72.92, from:1920, to:1961 }
+    ]},
+  { name:"Anna Freud", birth:1895, death:1982, cat:"psicologo",
+    born:{ city:"Viena, Áustria", lat:48.21, lng:16.37 },
+    worked:[
+      { place:"Viena (clínica e escola)", city:"Viena, Áustria", lat:48.21, lng:16.37, from:1920, to:1938 },
+      { place:"Hampstead Child Therapy Clinic", city:"Londres, Inglaterra", lat:51.56, lng:-0.18, from:1941, to:1982 }
+    ]},
+  { name:"Jean Piaget", birth:1896, death:1980, cat:"psicologo",
+    born:{ city:"Neuchâtel, Suíça", lat:46.99, lng:6.93 },
+    worked:[
+      { place:"Institut Jean-Jacques Rousseau", city:"Genebra, Suíça", lat:46.20, lng:6.15, from:1921, to:1980 }
+    ]},
+  { name:"Mary Cover Jones", birth:1896, death:1987, cat:"psicologo",
+    born:{ city:"Johnstown, Pensilvânia, EUA", lat:40.33, lng:-78.92 },
+    worked:[
+      { place:"Universidade da Califórnia (Berkeley)", city:"Berkeley, EUA", lat:37.87, lng:-122.26, from:1927, to:1960 }
+    ]},
+  { name:"Carl Rogers", birth:1902, death:1987, cat:"psicologo",
+    born:{ city:"Oak Park, Illinois, EUA", lat:41.88, lng:-87.79 },
+    worked:[
+      { place:"Universidade de Chicago", city:"Chicago, EUA", lat:41.79, lng:-87.60, from:1945, to:1957 },
+      { place:"Universidade de Wisconsin", city:"Madison, EUA", lat:43.07, lng:-89.40, from:1957, to:1963 }
+    ]},
+  { name:"Horace Mann Bond", birth:1904, death:1972, cat:"psicologo",
+    born:{ city:"Nashville, Tennessee, EUA", lat:36.17, lng:-86.78 },
+    worked:[
+      { place:"Lincoln University", city:"Lincoln University, PA, EUA", lat:39.81, lng:-75.92, from:1945, to:1957 }
+    ]},
+  { name:"B.F. Skinner", birth:1904, death:1990, cat:"psicologo",
+    born:{ city:"Susquehanna, Pensilvânia, EUA", lat:41.94, lng:-75.60 },
+    worked:[
+      { place:"Universidade de Minnesota", city:"Minneapolis, EUA", lat:44.97, lng:-93.23, from:1936, to:1945 },
+      { place:"Universidade Harvard", city:"Cambridge, EUA", lat:42.37, lng:-71.12, from:1948, to:1990 }
+    ]},
+  { name:"Abraham Maslow", birth:1908, death:1970, cat:"psicologo",
+    born:{ city:"Brooklyn, Nova York, EUA", lat:40.65, lng:-73.95 },
+    worked:[
+      { place:"Brooklyn College", city:"Nova York, EUA", lat:40.63, lng:-73.95, from:1937, to:1951 },
+      { place:"Brandeis University", city:"Waltham, EUA", lat:42.36, lng:-71.26, from:1951, to:1969 }
+    ]},
+  { name:"Anne Anastasi", birth:1908, death:2001, cat:"psicologo",
+    born:{ city:"Nova York, EUA", lat:40.71, lng:-74.01 },
+    worked:[
+      { place:"Fordham University", city:"Nova York, EUA", lat:40.86, lng:-73.88, from:1947, to:1979 }
+    ]},
+  { name:"Joseph Wolpe", birth:1915, death:1997, cat:"psicologo",
+    born:{ city:"Joanesburgo, África do Sul", lat:-26.20, lng:28.04 },
+    worked:[
+      { place:"Universidade de Witwatersrand", city:"Joanesburgo, África do Sul", lat:-26.19, lng:28.03, from:1948, to:1960 },
+      { place:"Temple University", city:"Filadélfia, EUA", lat:40.10, lng:-75.14, from:1965, to:1988 }
+    ]},
+  { name:"Julian Rotter", birth:1916, death:2014, cat:"psicologo",
+    born:{ city:"Brooklyn, Nova York, EUA", lat:40.65, lng:-73.95 },
+    worked:[
+      { place:"Universidade de Connecticut", city:"Storrs, EUA", lat:41.80, lng:-72.25, from:1963, to:2014 }
+    ]},
+  { name:"Mamie Phipps Clark", birth:1917, death:1983, cat:"psicologo",
+    born:{ city:"Hot Springs, Arkansas, EUA", lat:34.50, lng:-93.05 },
+    worked:[
+      { place:"Northside Center for Child Development", city:"Nova York, EUA", lat:40.80, lng:-73.95, from:1946, to:1980 }
+    ]},
+  { name:"George Miller", birth:1920, death:2012, cat:"psicologo",
+    born:{ city:"Charleston, Virgínia Ocidental, EUA", lat:38.35, lng:-81.63 },
+    worked:[
+      { place:"Universidade Harvard", city:"Cambridge, EUA", lat:42.37, lng:-71.12, from:1951, to:1968 },
+      { place:"Universidade Princeton", city:"Princeton, EUA", lat:40.34, lng:-74.65, from:1979, to:2012 }
+    ]},
+  { name:"Albert Bandura", birth:1925, death:2021, cat:"psicologo",
+    born:{ city:"Mundare, Alberta, Canadá", lat:53.55, lng:-112.33 },
+    worked:[
+      { place:"Universidade Stanford", city:"Stanford, EUA", lat:37.43, lng:-122.17, from:1953, to:2021 }
+    ]},
+  { name:"Ulric Neisser", birth:1928, death:2012, cat:"psicologo",
+    born:{ city:"Kiel, Alemanha", lat:54.32, lng:10.14 },
+    worked:[
+      { place:"Cornell University", city:"Ithaca, EUA", lat:42.45, lng:-76.48, from:1967, to:1983 },
+      { place:"Universidade Emory", city:"Atlanta, EUA", lat:33.79, lng:-84.32, from:1983, to:2012 }
+    ]},
+  { name:"Martin Seligman", birth:1942, death:2025, cat:"psicologo",
+    born:{ city:"Albany, Nova York, EUA", lat:42.65, lng:-73.75 },
+    worked:[
+      { place:"Universidade da Pensilvânia", city:"Filadélfia, EUA", lat:39.95, lng:-75.19, from:1971, to:2025 }
+    ]},
+];
+
+// ═══════════════════════════════════════════════════════════════
+// CORES POR CATEGORIA
+// ═══════════════════════════════════════════════════════════════
+const CAT_COLORS = {
+  psicologo:  '#22c55e',
+  filosofo:   '#a78bfa',
+  fisiologo:  '#f97316',
+  medico:     '#f43f5e',
+  matematico: '#38bdf8',
+  naturalista:'#84cc16',
+  sociologo:  '#fb923c',
+};
+
+const CAT_LABELS = {
+  psicologo:  'Psicólogo',
+  filosofo:   'Filósofo',
+  fisiologo:  'Fisiologista',
+  medico:     'Médico',
+  matematico: 'Matemático/Físico',
+  naturalista:'Naturalista',
+  sociologo:  'Sociólogo',
+};
+
+// ═══════════════════════════════════════════════════════════════
+// MAPA
+// ═══════════════════════════════════════════════════════════════
+const map = L.map('map', {
+  center: [30, 10],
+  zoom: 3,
+  minZoom: 2,
+  maxZoom: 10,
+  zoomControl: true,
+});
+
+L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+  attribution: '© OpenStreetMap contributors',
+  maxZoom: 19,
+}).addTo(map);
+
+// ── State ──
+let currentMode = 'nascimento';
+let currentCat  = 'all';
+let periodStart = 1450;
+let periodEnd   = 2030;
+let markers     = [];
+
+// ── Create custom icon ──
+function makeIcon(color, isWork = false) {
+  const size = isWork ? 10 : 12;
+  const svg = isWork
+    ? `<svg xmlns="http://www.w3.org/2000/svg" width="${size*2}" height="${size*2}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="${color}" stroke-width="2.5"/><circle cx="12" cy="12" r="3" fill="${color}"/></svg>`
+    : `<svg xmlns="http://www.w3.org/2000/svg" width="${size*2}" height="${size*2}" viewBox="0 0 24 24"><circle cx="12" cy="12" r="10" fill="${color}" fill-opacity="0.85"/><circle cx="12" cy="12" r="5" fill="white" fill-opacity="0.4"/></svg>`;
+  return L.divIcon({
+    html: svg,
+    className: '',
+    iconSize: [size*2, size*2],
+    iconAnchor: [size, size],
+    popupAnchor: [0, -size],
+  });
+}
+
+// ── Build popup ──
+function buildPopup(t, showBorn, showWork) {
+  const color = CAT_COLORS[t.cat] || '#c9a84c';
+  let locs = '';
+  if (showBorn) {
+    locs += `<div class="popup-loc-item"><span class="popup-loc-type">Nascimento</span><span class="popup-loc-name">${t.born.city}</span></div>`;
+  }
+  if (showWork && t.worked) {
+    t.worked.forEach(w => {
+      locs += `<div class="popup-loc-item"><span class="popup-loc-type">${w.from}–${w.to}</span><span class="popup-loc-name">${w.place}<br><span style="color:var(--text-dim);font-size:11px">${w.city}</span></span></div>`;
+    });
+  }
+  return `<div class="popup-inner">
+    <div class="popup-name">${t.name}</div>
+    <div class="popup-dates">${t.birth} – ${t.death}</div>
+    <div class="popup-cat" style="background:${color}22;color:${color};border:1px solid ${color}44">${CAT_LABELS[t.cat]}</div>
+    <div class="popup-locations">${locs}</div>
+  </div>`;
+}
+
+// ── Render markers ──
+function renderMarkers() {
+  // Clear existing
+  markers.forEach(m => map.removeLayer(m));
+  markers = [];
+
+  let count = 0;
+
+  THINKERS.forEach(t => {
+    // Category filter
+    if (currentCat !== 'all' && t.cat !== currentCat) return;
+
+    // Period filter — pensador deve ter vivido no período selecionado
+    if (t.death < periodStart || t.birth > periodEnd) return;
+
+    const color = CAT_COLORS[t.cat] || '#c9a84c';
+    const showBorn = currentMode === 'nascimento' || currentMode === 'ambos';
+    const showWork = currentMode === 'atuacao'    || currentMode === 'ambos';
+
+    // Birth marker
+    if (showBorn) {
+      const m = L.marker([t.born.lat, t.born.lng], { icon: makeIcon(color, false) })
+        .bindPopup(buildPopup(t, true, false), { maxWidth: 280 });
+      m.addTo(map);
+      markers.push(m);
+      count++;
+    }
+
+    // Work markers
+    if (showWork && t.worked) {
+      t.worked.forEach(w => {
+        // Filter by period overlap
+        if (w.to < periodStart || w.from > periodEnd) return;
+
+        const wm = L.marker([w.lat, w.lng], { icon: makeIcon(color, true) })
+          .bindPopup(buildPopup(t, false, true), { maxWidth: 280 });
+        wm.addTo(map);
+        markers.push(wm);
+        count++;
+      });
+    }
+  });
+
+  // Update stats
+  const unique = new Set();
+  THINKERS.forEach(t => {
+    if (currentCat !== 'all' && t.cat !== currentCat) return;
+    if (t.death < periodStart || t.birth > periodEnd) return;
+    unique.add(t.name);
+  });
+  document.getElementById('statsPill').textContent = `${unique.size} pensador${unique.size !== 1 ? 'es' : ''}`;
+}
+
+// ── Controls ──
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('btnNasc').classList.toggle('active', mode === 'nascimento');
+  document.getElementById('btnAtua').classList.toggle('active', mode === 'atuacao');
+  document.getElementById('btnAmbos').classList.toggle('active', mode === 'ambos');
+  renderMarkers();
+}
+
+function setCat(btn, cat) {
+  currentCat = cat;
+  document.querySelectorAll('[data-cat]').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderMarkers();
+}
+
+function updatePeriod() {
+  periodStart = parseInt(document.getElementById('periodStart').value);
+  periodEnd   = parseInt(document.getElementById('periodEnd').value);
+  // Ensure start <= end
+  if (periodStart > periodEnd) {
+    periodEnd = periodStart;
+    document.getElementById('periodEnd').value = periodEnd;
+  }
+  document.getElementById('valStart').textContent = periodStart;
+  document.getElementById('valEnd').textContent   = periodEnd;
+  renderMarkers();
+}
+
+// ── Init ──
+renderMarkers();
+</script>
+</body>
+</html>

@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mapa de Relações — História da Psicologia Moderna</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;0,700;1,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+:root {
+  --bg: #08080c;
+  --surface: #101018;
+  --surface2: #16161f;
+  --border: #1e1e2e;
+  --border-light: #2a2a3a;
+  --text: #e8e5dc;
+  --text-dim: #706c78;
+  --gold: #c9a84c;
+  --gold-dim: rgba(201,168,76,0.12);
+}
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--bg);
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  min-height: 100vh;
+}
+
+/* ── Top Bar ── */
+.topbar {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  padding: 20px 32px;
+  border-bottom: 1px solid var(--border);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  background: rgba(8,8,12,0.92);
+  backdrop-filter: blur(12px);
+}
+
+.topbar a.back {
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  transition: color 0.2s;
+}
+
+.topbar a.back:hover { color: var(--gold); }
+
+.topbar h1 {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 400;
+  color: var(--gold);
+  flex: 1;
+}
+
+/* ── Tab navigation ── */
+.tabs {
+  display: flex;
+  gap: 4px;
+  padding: 16px 32px;
+  overflow-x: auto;
+  border-bottom: 1px solid var(--border);
+  background: var(--bg);
+  position: sticky;
+  top: 61px;
+  z-index: 90;
+}
+
+.tab {
+  padding: 8px 18px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-family: 'DM Sans', sans-serif;
+  border: 1px solid var(--border);
+  background: var(--surface);
+  color: var(--text-dim);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s;
+  font-weight: 400;
+}
+
+.tab:hover { border-color: var(--gold); color: var(--gold); }
+.tab.active {
+  background: var(--gold-dim);
+  border-color: var(--gold);
+  color: var(--gold);
+  font-weight: 500;
+}
+
+/* ── Legend ── */
+.legend-bar {
+  display: flex;
+  gap: 20px;
+  padding: 14px 32px;
+  font-size: 11px;
+  color: var(--text-dim);
+  flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+}
+
+.legend-bar .leg-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.leg-line {
+  width: 24px;
+  height: 3px;
+  border-radius: 2px;
+}
+
+/* ── Tree container ── */
+.tree-view {
+  padding: 40px 32px 80px;
+  overflow-x: auto;
+}
+
+.tree-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 26px;
+  font-weight: 400;
+  margin-bottom: 6px;
+}
+
+.tree-desc {
+  font-size: 14px;
+  color: var(--text-dim);
+  font-weight: 300;
+  margin-bottom: 36px;
+  line-height: 1.6;
+  max-width: 700px;
+}
+
+/* ── Node Tree (CSS-only) ── */
+.tree {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  min-width: fit-content;
+}
+
+.node-group {
+  margin-bottom: 20px;
+}
+
+.node-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 0;
+  position: relative;
+}
+
+.node {
+  background: var(--surface2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 12px 16px;
+  min-width: 200px;
+  max-width: 260px;
+  position: relative;
+  transition: all 0.2s;
+  cursor: default;
+}
+
+.node:hover {
+  border-color: var(--gold);
+  box-shadow: 0 0 20px var(--gold-dim);
+  transform: translateY(-2px);
+}
+
+.node .n-name {
+  font-family: 'Playfair Display', serif;
+  font-size: 15px;
+  font-weight: 600;
+  margin-bottom: 2px;
+}
+
+.node .n-dates {
+  font-size: 11px;
+  color: var(--text-dim);
+  font-weight: 300;
+}
+
+.node .n-role {
+  font-size: 11px;
+  margin-top: 6px;
+  padding: 3px 8px;
+  border-radius: 10px;
+  display: inline-block;
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.node .n-note {
+  font-size: 11px;
+  color: var(--text-dim);
+  margin-top: 6px;
+  font-style: italic;
+  line-height: 1.4;
+}
+
+/* Role colors */
+.role-fundador { background: rgba(201,168,76,0.15); color: #c9a84c; }
+.role-professor { background: rgba(99,102,241,0.15); color: #818cf8; }
+.role-aluno { background: rgba(34,197,94,0.15); color: #86efac; }
+.role-influencia { background: rgba(244,63,94,0.15); color: #fb7185; }
+.role-colega { background: rgba(20,184,166,0.15); color: #5eead4; }
+.role-rival { background: rgba(249,115,22,0.15); color: #fdba74; }
+.role-familia { background: rgba(167,139,250,0.15); color: #c4b5fd; }
+.role-discipulo { background: rgba(56,189,248,0.15); color: #7dd3fc; }
+
+/* ── Connection lines ── */
+.branch {
+  margin-left: 32px;
+  padding-left: 28px;
+  border-left: 2px solid var(--border-light);
+  position: relative;
+}
+
+.branch::before {
+  content: '';
+  position: absolute;
+  left: -2px;
+  top: 0;
+  width: 28px;
+  height: 22px;
+  border-left: 2px solid var(--border-light);
+  border-bottom: 2px solid var(--border-light);
+  border-radius: 0 0 0 10px;
+}
+
+.branch .node {
+  margin-bottom: 12px;
+}
+
+.branch-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  color: var(--text-dim);
+  margin-bottom: 8px;
+  padding-left: 4px;
+  font-weight: 500;
+}
+
+/* Connection type indicators */
+.conn-professor { border-left-color: #6366f1 !important; }
+.conn-professor::before { border-color: #6366f1 !important; }
+.conn-aluno { border-left-color: #22c55e !important; }
+.conn-aluno::before { border-color: #22c55e !important; }
+.conn-influencia { border-left-color: #f43f5e !important; }
+.conn-influencia::before { border-color: #f43f5e !important; }
+.conn-rival { border-left-color: #f97316 !important; }
+.conn-rival::before { border-color: #f97316 !important; }
+.conn-familia { border-left-color: #a78bfa !important; }
+.conn-familia::before { border-color: #a78bfa !important; }
+.conn-colega { border-left-color: #14b8a6 !important; }
+.conn-colega::before { border-color: #14b8a6 !important; }
+.conn-discipulo { border-left-color: #38bdf8 !important; }
+.conn-discipulo::before { border-color: #38bdf8 !important; }
+
+/* ── Section dividers ── */
+.section-sep {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin: 48px 0 32px;
+}
+
+.section-sep .sep-line {
+  flex: 1;
+  height: 1px;
+  background: var(--border);
+}
+
+.section-sep .sep-label {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  color: var(--text-dim);
+  font-weight: 500;
+}
+
+/* Hidden sections */
+.tree-section { display: none; }
+.tree-section.active { display: block; }
+
+/* ── Search ── */
+.search-box {
+  position: relative;
+  margin-left: auto;
+}
+
+.search-box input {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 7px 16px 7px 34px;
+  color: var(--text);
+  font-family: 'DM Sans', sans-serif;
+  font-size: 12px;
+  width: 200px;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-box input:focus { border-color: var(--gold); }
+
+.search-box svg {
+  position: absolute;
+  left: 12px;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-dim);
+}
+
+.highlight { background: rgba(201,168,76,0.3); border-radius: 2px; }
+
+@media (max-width: 768px) {
+  .topbar, .tabs, .legend-bar, .tree-view { padding-left: 16px; padding-right: 16px; }
+  .node { min-width: 170px; max-width: 220px; padding: 10px 12px; }
+  .branch { margin-left: 16px; padding-left: 20px; }
+  .search-box input { width: 140px; }
+}
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <a class="back" href="index.html">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M19 12H5M12 19l-7-7 7-7"/></svg>
+    Início
+  </a>
+  <h1>Mapa de Relações</h1>
+  <div class="search-box">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><path d="M21 21l-4.35-4.35"/></svg>
+    <input type="text" id="searchInput" placeholder="Buscar pensador..." oninput="handleSearch(this.value)">
+  </div>
+</div>
+
+<div class="tabs" id="tabs">
+  <button class="tab active" onclick="showSection('wundt')">Escola de Wundt</button>
+  <button class="tab" onclick="showSection('psicanalise')">Psicanálise</button>
+  <button class="tab" onclick="showSection('behaviorismo')">Behaviorismo</button>
+  <button class="tab" onclick="showSection('gestalt')">Gestalt</button>
+  <button class="tab" onclick="showSection('funcionalismo')">Funcionalismo</button>
+  <button class="tab" onclick="showSection('filosofica')">Raízes Filosóficas</button>
+  <button class="tab" onclick="showSection('fisiologica')">Raízes Fisiológicas</button>
+  <button class="tab" onclick="showSection('aplicada')">Psic. Aplicada</button>
+  <button class="tab" onclick="showSection('humanista')">Humanismo & Cognitiva</button>
+</div>
+
+<div class="legend-bar">
+  <div class="leg-item"><div class="leg-line" style="background:#c9a84c"></div>Fundador</div>
+  <div class="leg-item"><div class="leg-line" style="background:#6366f1"></div>Professor</div>
+  <div class="leg-item"><div class="leg-line" style="background:#22c55e"></div>Aluno</div>
+  <div class="leg-item"><div class="leg-line" style="background:#38bdf8"></div>Discípulo</div>
+  <div class="leg-item"><div class="leg-line" style="background:#14b8a6"></div>Colega</div>
+  <div class="leg-item"><div class="leg-line" style="background:#f43f5e"></div>Influência</div>
+  <div class="leg-item"><div class="leg-line" style="background:#f97316"></div>Rival / Divergência</div>
+  <div class="leg-item"><div class="leg-line" style="background:#a78bfa"></div>Família</div>
+</div>
+
+<div class="tree-view">
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- ESCOLA DE WUNDT -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tree-section active" id="sec-wundt">
+  <div class="tree-title">A Árvore de Leipzig</div>
+  <div class="tree-desc">Wilhelm Wundt fundou o primeiro laboratório de psicologia experimental em Leipzig (1879). De lá saíram alunos que levaram a psicologia para o mundo inteiro, cada um criando sua própria vertente.</div>
+
+  <div class="tree">
+    <div class="node" style="border-color: var(--gold);">
+      <div class="n-name">Wilhelm Wundt</div>
+      <div class="n-dates">1832–1920</div>
+      <div class="n-role role-fundador">Fundador — Lab. Leipzig 1879</div>
+      <div class="n-note">Estudou com Helmholtz. Pai da psicologia experimental.</div>
+    </div>
+
+    <div class="branch conn-aluno">
+      <div class="branch-label">Alunos de Wundt</div>
+
+      <div class="node">
+        <div class="n-name">E. B. Titchener</div>
+        <div class="n-dates">1867–1927</div>
+        <div class="n-role role-aluno">Aluno em Leipzig</div>
+        <div class="n-note">Levou o sistema de Wundt para os EUA (Cornell) e fundou o Estruturalismo.</div>
+      </div>
+
+      <div class="node">
+        <div class="n-name">James M. Cattell</div>
+        <div class="n-dates">1860–1944</div>
+        <div class="n-role role-aluno">Aluno em Leipzig</div>
+        <div class="n-note">Também estudou com Galton. Pioneiro dos testes mentais nos EUA.</div>
+      </div>
+
+      <div class="node">
+        <div class="n-name">G. Stanley Hall</div>
+        <div class="n-dates">1844–1924</div>
+        <div class="n-role role-aluno">Aluno em Leipzig</div>
+        <div class="n-note">Fundou o 1º lab. de psicologia nos EUA e a APA (1892). Trabalhou com William James.</div>
+      </div>
+
+      <div class="node">
+        <div class="n-name">Oswald Külpe</div>
+        <div class="n-dates">1862–1915</div>
+        <div class="n-role role-aluno">Aluno e assistente em Leipzig</div>
+        <div class="n-note">Fundou o laboratório de Würzburg, divergiu de Wundt sobre introspecção.</div>
+      </div>
+
+      <div class="node">
+        <div class="n-name">Lightner Witmer</div>
+        <div class="n-dates">1867–1956</div>
+        <div class="n-role role-aluno">Aluno em Leipzig</div>
+        <div class="n-note">Fundou a primeira clínica de psicologia nos EUA (1896).</div>
+      </div>
+
+      <div class="node">
+        <div class="n-name">Hugo Münsterberg</div>
+        <div class="n-dates">1863–1916</div>
+        <div class="n-role role-aluno">Aluno em Leipzig</div>
+        <div class="n-note">Pioneiro da psicologia industrial e forense nos EUA. Convidado por William James para Harvard.</div>
+      </div>
+    </div>
+
+    <div class="section-sep"><div class="sep-line"></div><div class="sep-label">Influências de Wundt</div><div class="sep-line"></div></div>
+
+    <div class="branch conn-influencia">
+      <div class="branch-label">Influenciados por Wundt (fora de Leipzig)</div>
+
+      <div class="node">
+        <div class="n-name">Hermann Ebbinghaus</div>
+        <div class="n-dates">1850–1909</div>
+        <div class="n-role role-influencia">Influência indireta</div>
+        <div class="n-note">Não foi aluno de Wundt, mas influenciado por Fechner. Pesquisou memória e aprendizagem de forma independente.</div>
+      </div>
+
+      <div class="node">
+        <div class="n-name">Carl Stumpf</div>
+        <div class="n-dates">1848–1936</div>
+        <div class="n-role role-rival">Rival acadêmico</div>
+        <div class="n-note">Discípulo de Brentano. Rivalizou com Wundt. Professor dos fundadores da Gestalt (Wertheimer, Koffka, Köhler).</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PSICANÁLISE -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tree-section" id="sec-psicanalise">
+  <div class="tree-title">A Árvore Psicanalítica</div>
+  <div class="tree-desc">Freud fundou a psicanálise influenciado por Charcot, Breuer e Darwin. Seus discípulos Jung e Adler romperam com ele, criando suas próprias escolas. A tradição continua com sua filha Anna e com os neofreudianos.</div>
+
+  <div class="tree">
+    <div class="branch conn-influencia" style="border-left: none; padding-left: 0;">
+      <div class="branch-label">Influências sobre Freud</div>
+      <div class="node">
+        <div class="n-name">Jean-Martin Charcot</div>
+        <div class="n-dates">1825–1893</div>
+        <div class="n-role role-professor">Professor / Mentor</div>
+        <div class="n-note">Freud estudou com Charcot em Paris (1885). Aprendeu sobre histeria e hipnose.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Josef Breuer</div>
+        <div class="n-dates">1842–1925</div>
+        <div class="n-role role-colega">Colega / Mentor</div>
+        <div class="n-note">Caso de Anna O. Co-autor de "Estudos sobre a Histeria" com Freud. Método catártico.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Pierre Janet</div>
+        <div class="n-dates">1859–1947</div>
+        <div class="n-role role-colega">Contemporâneo</div>
+        <div class="n-note">Aluno de Charcot. Antecipou muitas ideias de Freud sobre o inconsciente.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Gustav T. Fechner</div>
+        <div class="n-dates">1801–1887</div>
+        <div class="n-role role-influencia">Influência teórica</div>
+        <div class="n-note">Metáfora do iceberg da mente influenciou Freud diretamente.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Charles Darwin</div>
+        <div class="n-dates">1809–1882</div>
+        <div class="n-role role-influencia">Influência teórica</div>
+        <div class="n-note">Teoria da evolução influenciou as ideias de Freud sobre instintos e desenvolvimento infantil.</div>
+      </div>
+    </div>
+
+    <div class="section-sep"><div class="sep-line"></div><div class="sep-label">Fundador</div><div class="sep-line"></div></div>
+
+    <div class="node" style="border-color: var(--gold);">
+      <div class="n-name">Sigmund Freud</div>
+      <div class="n-dates">1856–1939</div>
+      <div class="n-role role-fundador">Fundador da Psicanálise</div>
+      <div class="n-note">Criou o método da associação livre, teoria do inconsciente, estágios psicossexuais.</div>
+    </div>
+
+    <div class="branch conn-familia">
+      <div class="branch-label">Família</div>
+      <div class="node">
+        <div class="n-name">Anna Freud</div>
+        <div class="n-dates">1895–1982</div>
+        <div class="n-role role-familia">Filha</div>
+        <div class="n-note">Psicologia do ego. Pioneira da psicanálise infantil. Analisada pelo próprio pai.</div>
+      </div>
+    </div>
+
+    <div class="branch conn-discipulo">
+      <div class="branch-label">Discípulos que romperam com Freud</div>
+      <div class="node">
+        <div class="n-name">Carl Jung</div>
+        <div class="n-dates">1875–1961</div>
+        <div class="n-role role-rival">Discípulo → Rompimento</div>
+        <div class="n-note">Inicialmente protegido de Freud. Rompeu em 1913. Criou a Psicologia Analítica: inconsciente coletivo, arquétipos, introversão/extroversão.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Alfred Adler</div>
+        <div class="n-dates">1870–1937</div>
+        <div class="n-role role-rival">Discípulo → Rompimento</div>
+        <div class="n-note">Primeiro grande dissidente. Criou a Psicologia Individual: sentimento de inferioridade, estilo de vida, ordem de nascimento.</div>
+      </div>
+    </div>
+
+    <div class="branch conn-discipulo">
+      <div class="branch-label">Neofreudianos</div>
+      <div class="node">
+        <div class="n-name">Karen Horney</div>
+        <div class="n-dates">1885–1952</div>
+        <div class="n-role role-rival">Neofreudiana — divergiu de Freud</div>
+        <div class="n-note">Criticou a visão de Freud sobre as mulheres. Desenvolveu teoria da ansiedade básica e necessidades neuróticas.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- BEHAVIORISMO -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tree-section" id="sec-behaviorismo">
+  <div class="tree-title">A Linhagem Behaviorista</div>
+  <div class="tree-desc">De Pavlov e Thorndike até Watson, Skinner e Bandura. A escola que transformou a psicologia em ciência do comportamento observável, com ramificações cognitivas posteriores.</div>
+
+  <div class="tree">
+    <div class="branch conn-influencia" style="border-left: none; padding-left: 0;">
+      <div class="branch-label">Precursores</div>
+      <div class="node">
+        <div class="n-name">Ivan Pavlov</div>
+        <div class="n-dates">1849–1936</div>
+        <div class="n-role role-influencia">Influência fundamental</div>
+        <div class="n-note">Reflexos condicionados. Forneceu a base experimental para o behaviorismo de Watson.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Vladimir Bekhterev</div>
+        <div class="n-dates">1857–1927</div>
+        <div class="n-role role-colega">Contemporâneo de Pavlov</div>
+        <div class="n-note">Reflexos associados. Abordagem objetiva paralela à de Pavlov.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Jacques Loeb</div>
+        <div class="n-dates">1859–1924</div>
+        <div class="n-role role-influencia">Influência mecanicista</div>
+        <div class="n-note">Tropismos e mecanicismo radical. Influenciou Watson na direção objetiva.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">E. L. Thorndike</div>
+        <div class="n-dates">1874–1949</div>
+        <div class="n-role role-influencia">Influência fundamental</div>
+        <div class="n-note">Conexionismo. Caixa-problema. Leis da aprendizagem (efeito, exercício). Orientado por William James em Harvard.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">C. Lloyd Morgan</div>
+        <div class="n-dates">1852–1936</div>
+        <div class="n-role role-influencia">Influência metodológica</div>
+        <div class="n-note">Cânone de parcimônia (Lei de Morgan). Sucessor designado por Romanes. Influenciou a psicologia animal objetiva.</div>
+      </div>
+    </div>
+
+    <div class="section-sep"><div class="sep-line"></div><div class="sep-label">Fundador</div><div class="sep-line"></div></div>
+
+    <div class="node" style="border-color: var(--gold);">
+      <div class="n-name">John B. Watson</div>
+      <div class="n-dates">1878–1958</div>
+      <div class="n-role role-fundador">Fundador do Behaviorismo</div>
+      <div class="n-note">Manifesto behaviorista (1913). Experimento do Pequeno Albert. Rejeitou introspecção.</div>
+    </div>
+
+    <div class="branch conn-aluno">
+      <div class="branch-label">Aluno de Watson</div>
+      <div class="node">
+        <div class="n-name">Karl Lashley</div>
+        <div class="n-dates">1890–1958</div>
+        <div class="n-role role-aluno">Aluno em Johns Hopkins</div>
+        <div class="n-note">Pesquisou mecanismos cerebrais da aprendizagem. Equipotencialidade e ação de massa.</div>
+      </div>
+    </div>
+
+    <div class="branch conn-rival">
+      <div class="branch-label">Rival de Watson</div>
+      <div class="node">
+        <div class="n-name">William McDougall</div>
+        <div class="n-dates">1871–1938</div>
+        <div class="n-role role-rival">Rival — Debate de 1924</div>
+        <div class="n-note">Psicologia hórmica (intencional). Debateu publicamente com Watson em 1924.</div>
+      </div>
+    </div>
+
+    <div class="section-sep"><div class="sep-line"></div><div class="sep-label">Neobehavioristas</div><div class="sep-line"></div></div>
+
+    <div class="branch conn-discipulo">
+      <div class="branch-label">Geração pós-Watson</div>
+      <div class="node">
+        <div class="n-name">E. C. Tolman</div>
+        <div class="n-dates">1886–1959</div>
+        <div class="n-role role-discipulo">Neobehaviorista</div>
+        <div class="n-note">Behaviorismo intencional. Variáveis intervenientes. Mapas cognitivos.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Clark L. Hull</div>
+        <div class="n-dates">1884–1952</div>
+        <div class="n-role role-discipulo">Neobehaviorista</div>
+        <div class="n-note">Sistema hipotético-dedutivo. Mecanicismo rigoroso. "Watson era ingênuo demais."</div>
+      </div>
+      <div class="node">
+        <div class="n-name">B. F. Skinner</div>
+        <div class="n-dates">1904–1990</div>
+        <div class="n-role role-discipulo">Neobehaviorista radical</div>
+        <div class="n-note">Condicionamento operante. Esquemas de reforço. Caixa de Skinner. Walden Two.</div>
+      </div>
+    </div>
+
+    <div class="branch conn-discipulo" style="margin-left: 64px;">
+      <div class="branch-label">Behaviorismo social (pós-Skinner)</div>
+      <div class="node">
+        <div class="n-name">Albert Bandura</div>
+        <div class="n-dates">1925–2021</div>
+        <div class="n-role role-discipulo">Teoria social cognitiva</div>
+        <div class="n-note">Aprendizagem vicária (observacional). Autoeficácia. Transição do behaviorismo para o cognitivismo.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Julian Rotter</div>
+        <div class="n-dates">1916–2014</div>
+        <div class="n-role role-discipulo">Teoria da aprendizagem social</div>
+        <div class="n-note">Locus de controle (interno/externo). Integrou cognição ao behaviorismo.</div>
+      </div>
+    </div>
+
+    <div class="branch conn-colega" style="margin-left: 64px;">
+      <div class="branch-label">Terapia comportamental</div>
+      <div class="node">
+        <div class="n-name">Joseph Wolpe</div>
+        <div class="n-dates">1915–1997</div>
+        <div class="n-role role-colega">Terapia comportamental</div>
+        <div class="n-note">Dessensibilização sistemática. Aplicação clínica do condicionamento.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Mary Cover Jones</div>
+        <div class="n-dates">1896–1987</div>
+        <div class="n-role role-colega">"Mãe da terapia comportamental"</div>
+        <div class="n-note">Caso do Pequeno Peter: descondicionamento do medo. Trabalho relacionado ao de Watson.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- GESTALT -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tree-section" id="sec-gestalt">
+  <div class="tree-title">O Trio da Gestalt e Kurt Lewin</div>
+  <div class="tree-desc">Wertheimer, Koffka e Köhler — todos alunos de Carl Stumpf — revolucionaram a percepção. Kurt Lewin, também ligado à Gestalt, expandiu para a psicologia social.</div>
+
+  <div class="tree">
+    <div class="branch conn-influencia" style="border-left: none; padding-left: 0;">
+      <div class="branch-label">Raízes</div>
+      <div class="node">
+        <div class="n-name">Franz Brentano</div>
+        <div class="n-dates">1838–1917</div>
+        <div class="n-role role-influencia">Influência filosófica</div>
+        <div class="n-note">Psicologia do ato. Professor de Stumpf e Ehrenfels. Opôs-se à abordagem de Wundt.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Ernst Mach</div>
+        <div class="n-dates">1838–1916</div>
+        <div class="n-role role-influencia">Influência da física</div>
+        <div class="n-note">Padrões espaciais e formas temporais na percepção. Influenciou a Gestalt.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Christian von Ehrenfels</div>
+        <div class="n-dates">1859–1932</div>
+        <div class="n-role role-influencia">Precursor direto</div>
+        <div class="n-note">Conceito de "qualidade da forma" (Gestaltqualität). Aluno de Brentano. Base teórica para a Gestalt.</div>
+      </div>
+    </div>
+
+    <div class="section-sep"><div class="sep-line"></div><div class="sep-label">Professor</div><div class="sep-line"></div></div>
+
+    <div class="node" style="border-color: #6366f1;">
+      <div class="n-name">Carl Stumpf</div>
+      <div class="n-dates">1848–1936</div>
+      <div class="n-role role-professor">Professor — Berlin</div>
+      <div class="n-note">Discípulo de Brentano. Fenomenologia. Rival de Wundt. Orientou Wertheimer, Koffka, Köhler e Lewin.</div>
+    </div>
+
+    <div class="branch conn-aluno">
+      <div class="branch-label">Alunos de Stumpf — Fundadores da Gestalt</div>
+      <div class="node" style="border-color: var(--gold);">
+        <div class="n-name">Max Wertheimer</div>
+        <div class="n-dates">1880–1943</div>
+        <div class="n-role role-fundador">Fundador — Fenômeno Phi</div>
+        <div class="n-note">Fenômeno phi (1912): marco da psicologia da Gestalt. Pensamento produtivo.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Kurt Koffka</div>
+        <div class="n-dates">1886–1941</div>
+        <div class="n-role role-aluno">Co-fundador — Doutorado com Stumpf</div>
+        <div class="n-note">Levou a Gestalt para os EUA. Psicologia do desenvolvimento. Sujeito nos experimentos do phi.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Wolfgang Köhler</div>
+        <div class="n-dates">1887–1967</div>
+        <div class="n-role role-aluno">Co-fundador — Doutorado com Stumpf</div>
+        <div class="n-note">Insight nos macacos de Tenerife. Isomorfismo. Criticou o nazismo. Sujeito nos experimentos do phi.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Kurt Lewin</div>
+        <div class="n-dates">1890–1947</div>
+        <div class="n-role role-aluno">Aluno — Berlim</div>
+        <div class="n-note">Teoria de campo. Espaço vital. Psicologia social experimental. Dinâmica de grupo.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- FUNCIONALISMO -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tree-section" id="sec-funcionalismo">
+  <div class="tree-title">Funcionalismo Americano</div>
+  <div class="tree-desc">De Darwin e Spencer a William James, e de James à escola de Chicago (Dewey, Angell) e Columbia (Woodworth). O funcionalismo moldou a psicologia americana como aplicada e prática.</div>
+
+  <div class="tree">
+    <div class="branch conn-influencia" style="border-left: none; padding-left: 0;">
+      <div class="branch-label">Raízes evolucionistas</div>
+      <div class="node">
+        <div class="n-name">Charles Darwin</div>
+        <div class="n-dates">1809–1882</div>
+        <div class="n-role role-influencia">Influência fundamental</div>
+        <div class="n-note">Seleção natural. Expressão das emoções. Base para toda a psicologia funcional.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Herbert Spencer</div>
+        <div class="n-dates">1820–1903</div>
+        <div class="n-role role-influencia">Darwinismo social</div>
+        <div class="n-note">Filosofia sintética. "Sobrevivência do mais apto." Popularizou a evolução nos EUA.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Francis Galton</div>
+        <div class="n-dates">1822–1911</div>
+        <div class="n-role role-influencia">Diferenças individuais</div>
+        <div class="n-note">Primo de Darwin. Eugenia, testes mentais, métodos estatísticos. Influenciou Cattell e os testes.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">George J. Romanes</div>
+        <div class="n-dates">1848–1894</div>
+        <div class="n-role role-discipulo">Discípulo de Darwin</div>
+        <div class="n-note">Protegido de Darwin. Psicologia animal comparada. Designou Lloyd Morgan como sucessor.</div>
+      </div>
+    </div>
+
+    <div class="section-sep"><div class="sep-line"></div><div class="sep-label">Precursor</div><div class="sep-line"></div></div>
+
+    <div class="node" style="border-color: var(--gold);">
+      <div class="n-name">William James</div>
+      <div class="n-dates">1842–1910</div>
+      <div class="n-role role-fundador">Precursor do Funcionalismo</div>
+      <div class="n-note">Princípios de Psicologia (1890). Pragmatismo. Teoria das emoções. Fluxo da consciência. Não fundou formalmente a escola.</div>
+    </div>
+
+    <div class="branch conn-aluno">
+      <div class="branch-label">Alunos / Colaboradores de James</div>
+      <div class="node">
+        <div class="n-name">G. Stanley Hall</div>
+        <div class="n-dates">1844–1924</div>
+        <div class="n-role role-aluno">Trabalhou com James</div>
+        <div class="n-note">Também aluno de Wundt. Fundou a APA. Psicologia do desenvolvimento.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Mary W. Calkins</div>
+        <div class="n-dates">1863–1930</div>
+        <div class="n-role role-aluno">Aluna de James em Harvard</div>
+        <div class="n-note">Primeira mulher presidente da APA (1905). Harvard recusou conceder-lhe o doutorado por ser mulher.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">E. L. Thorndike</div>
+        <div class="n-dates">1874–1949</div>
+        <div class="n-role role-aluno">Orientado por James (Harvard)</div>
+        <div class="n-note">Conexionismo. Depois migrou para Columbia. Ponte entre funcionalismo e behaviorismo.</div>
+      </div>
+    </div>
+
+    <div class="section-sep"><div class="sep-line"></div><div class="sep-label">Escola de Chicago</div><div class="sep-line"></div></div>
+
+    <div class="branch conn-discipulo">
+      <div class="branch-label">Funcionalismo formal</div>
+      <div class="node">
+        <div class="n-name">John Dewey</div>
+        <div class="n-dates">1859–1952</div>
+        <div class="n-role role-fundador">Fundador — Chicago</div>
+        <div class="n-note">Artigo do arco reflexo (1896): marco do funcionalismo. Filósofo e educador.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">J. R. Angell</div>
+        <div class="n-dates">1869–1949</div>
+        <div class="n-role role-discipulo">Sistematizador — Chicago</div>
+        <div class="n-note">Definiu os 3 princípios do funcionalismo. Aluno de James. Trabalhou com Dewey em Chicago.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">R. S. Woodworth</div>
+        <div class="n-dates">1869–1962</div>
+        <div class="n-role role-discipulo">Funcionalismo — Columbia</div>
+        <div class="n-note">Psicologia dinâmica. Funcionalismo em Columbia. Colega de Thorndike.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- RAÍZES FILOSÓFICAS -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tree-section" id="sec-filosofica">
+  <div class="tree-title">Raízes Filosóficas</div>
+  <div class="tree-desc">A cadeia de transmissão de ideias desde Descartes — passando pelo empirismo britânico (Locke → Berkeley → Hume → Mills) e pelo positivismo (Comte) — que pavimentou a psicologia moderna.</div>
+
+  <div class="tree">
+    <div class="node" style="border-color: var(--gold);">
+      <div class="n-name">René Descartes</div>
+      <div class="n-dates">1596–1650</div>
+      <div class="n-role role-fundador">Ponto de partida</div>
+      <div class="n-note">Dualismo mente-corpo. Mecanicismo. Ideias inatas. Influenciou toda a filosofia moderna e a psicologia.</div>
+    </div>
+
+    <div class="branch conn-discipulo">
+      <div class="branch-label">Empirismo Britânico (reação a Descartes)</div>
+      <div class="node">
+        <div class="n-name">John Locke</div>
+        <div class="n-dates">1632–1704</div>
+        <div class="n-role role-discipulo">Fundador do Empirismo</div>
+        <div class="n-note">Tábula rasa. Ensaio sobre o entendimento humano. Rejeitou ideias inatas de Descartes.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">George Berkeley</div>
+        <div class="n-dates">1685–1753</div>
+        <div class="n-role role-discipulo">Continuou Locke</div>
+        <div class="n-note">Percepção como base do conhecimento. "Ser é ser percebido."</div>
+      </div>
+
+      <div class="branch conn-discipulo">
+        <div class="branch-label">Associacionismo</div>
+        <div class="node">
+          <div class="n-name">James Mill</div>
+          <div class="n-dates">1773–1836</div>
+          <div class="n-role role-discipulo">Associacionismo mecânico</div>
+          <div class="n-note">Mente como máquina. Educou rigidamente seu filho John Stuart Mill.</div>
+        </div>
+        <div class="node">
+          <div class="n-name">John Stuart Mill</div>
+          <div class="n-dates">1806–1873</div>
+          <div class="n-role role-familia">Filho de James Mill</div>
+          <div class="n-note">Química mental (vs. mecânica do pai). Educado pelo pai desde os 3 anos com leituras em grego.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="branch conn-influencia">
+      <div class="branch-label">Racionalismo continental</div>
+      <div class="node">
+        <div class="n-name">Gottfried W. Leibniz</div>
+        <div class="n-dates">1646–1716</div>
+        <div class="n-role role-influencia">Mônadas / Petites perceptions</div>
+        <div class="n-note">Pequenas percepções inconscientes. Contribuiu para o conceito de limiar da consciência (influenciou Herbart e Fechner).</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Immanuel Kant</div>
+        <div class="n-dates">1724–1804</div>
+        <div class="n-role role-influencia">Desafiou o empirismo</div>
+        <div class="n-note">Negou que a psicologia pudesse ser ciência experimental. Influenciou o debate sobre a natureza da mente.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Johann F. Herbart</div>
+        <div class="n-dates">1776–1841</div>
+        <div class="n-role role-influencia">Limiar da consciência</div>
+        <div class="n-note">Tentou quantificar processos mentais. Conceito de limiar. Influenciou Fechner.</div>
+      </div>
+    </div>
+
+    <div class="branch conn-influencia">
+      <div class="branch-label">Positivismo</div>
+      <div class="node">
+        <div class="n-name">Auguste Comte</div>
+        <div class="n-dates">1798–1857</div>
+        <div class="n-role role-influencia">Positivismo</div>
+        <div class="n-note">Ciência baseada apenas em fatos observáveis. Influenciou a orientação objetiva da psicologia.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- RAÍZES FISIOLÓGICAS -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tree-section" id="sec-fisiologica">
+  <div class="tree-title">Raízes Fisiológicas</div>
+  <div class="tree-desc">De Galvani e Müller a Helmholtz e Fechner — os fisiologistas que forneceram os métodos experimentais que a psicologia adotaria como disciplina independente.</div>
+
+  <div class="tree">
+    <div class="branch conn-influencia" style="border-left: none; padding-left: 0;">
+      <div class="branch-label">Eletrofisiologia</div>
+      <div class="node">
+        <div class="n-name">Luigi Galvani</div>
+        <div class="n-dates">1737–1798</div>
+        <div class="n-role role-influencia">Eletricidade animal</div>
+        <div class="n-note">Descobriu impulsos elétricos nos nervos e músculos.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Johannes Müller</div>
+        <div class="n-dates">1801–1858</div>
+        <div class="n-role role-professor">Professor de Helmholtz</div>
+        <div class="n-note">Doutrina das energias nervosas específicas. Professor de Helmholtz em Berlim.</div>
+      </div>
+    </div>
+
+    <div class="branch conn-aluno">
+      <div class="branch-label">Aluno de Müller</div>
+      <div class="node" style="border-color: var(--gold);">
+        <div class="n-name">Hermann von Helmholtz</div>
+        <div class="n-dates">1821–1894</div>
+        <div class="n-role role-aluno">Aluno de Müller</div>
+        <div class="n-note">Mediu velocidade do impulso nervoso. Teoria da visão colorida e da audição. Professor de Wundt.</div>
+      </div>
+
+      <div class="branch conn-aluno">
+        <div class="branch-label">Assistente de Helmholtz</div>
+        <div class="node">
+          <div class="n-name">Wilhelm Wundt</div>
+          <div class="n-dates">1832–1920</div>
+          <div class="n-role role-aluno">Assistente de Helmholtz</div>
+          <div class="n-note">Trabalhou como assistente de Helmholtz em Heidelberg antes de fundar o lab. de Leipzig.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="section-sep"><div class="sep-line"></div><div class="sep-label">Psicofísica</div><div class="sep-line"></div></div>
+
+    <div class="branch conn-influencia" style="border-left: none; padding-left: 0;">
+      <div class="branch-label">De Weber a Fechner</div>
+      <div class="node">
+        <div class="n-name">Ernst Weber</div>
+        <div class="n-dates">1795–1878</div>
+        <div class="n-role role-influencia">Limiar de dois pontos</div>
+        <div class="n-note">Diferença apenas perceptível (JND). Lei de Weber. Base para a psicofísica de Fechner.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Gustav T. Fechner</div>
+        <div class="n-dates">1801–1887</div>
+        <div class="n-role role-fundador">Fundador da Psicofísica</div>
+        <div class="n-note">Expandiu o trabalho de Weber. Elementos de Psicofísica (1860). Influenciou Wundt, Ebbinghaus e Freud.</div>
+      </div>
+    </div>
+
+    <div class="section-sep"><div class="sep-line"></div><div class="sep-label">Localização cerebral</div><div class="sep-line"></div></div>
+
+    <div class="branch conn-influencia" style="border-left: none; padding-left: 0;">
+      <div class="node">
+        <div class="n-name">Josef Gall</div>
+        <div class="n-dates">1758–1828</div>
+        <div class="n-role role-influencia">Frenologia</div>
+        <div class="n-note">Localizou funções no cérebro (incorretamente). Abriu caminho para Broca e Flourens.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Pierre Flourens</div>
+        <div class="n-dates">1794–1867</div>
+        <div class="n-role role-rival">Refutou Gall</div>
+        <div class="n-note">Método da ablação. Refutou a frenologia, mas confirmou localização parcial de funções.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Paul Broca</div>
+        <div class="n-dates">1824–1880</div>
+        <div class="n-role role-discipulo">Localização da fala</div>
+        <div class="n-note">Área de Broca (1861). Provou localização cortical da linguagem.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Santiago Ramón y Cajal</div>
+        <div class="n-dates">1852–1934</div>
+        <div class="n-role role-influencia">Doutrina do neurônio</div>
+        <div class="n-note">Neurônio como unidade básica do sistema nervoso. Nobel 1906.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- PSICOLOGIA APLICADA -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tree-section" id="sec-aplicada">
+  <div class="tree-title">Psicologia Aplicada</div>
+  <div class="tree-desc">Os pioneiros que levaram a psicologia do laboratório para o mundo real: testes, clínica, indústria. Muitos eram alunos de Wundt ou Galton.</div>
+
+  <div class="tree">
+    <div class="branch conn-influencia" style="border-left: none; padding-left: 0;">
+      <div class="branch-label">Testes Mentais</div>
+      <div class="node">
+        <div class="n-name">Francis Galton</div>
+        <div class="n-dates">1822–1911</div>
+        <div class="n-role role-fundador">Criador do conceito</div>
+        <div class="n-note">Primo de Darwin. Originou os testes mentais, métodos estatísticos e o conceito de eugenia.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">James M. Cattell</div>
+        <div class="n-dates">1860–1944</div>
+        <div class="n-role role-discipulo">Aluno de Wundt e Galton</div>
+        <div class="n-note">Cunhou o termo "testes mentais." Ponte entre as tradições alemã e britânica.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Alfred Binet</div>
+        <div class="n-dates">1857–1911</div>
+        <div class="n-role role-colega">Contemporâneo</div>
+        <div class="n-note">Escala Binet-Simon de inteligência. Conceito de idade mental.</div>
+      </div>
+    </div>
+
+    <div class="section-sep"><div class="sep-line"></div><div class="sep-label">Psicologia clínica</div><div class="sep-line"></div></div>
+
+    <div class="node">
+      <div class="n-name">Lightner Witmer</div>
+      <div class="n-dates">1867–1956</div>
+      <div class="n-role role-fundador">Fundou 1ª clínica psicológica</div>
+      <div class="n-note">Aluno de Wundt. Fundou a primeira clínica de psicologia (1896) na Univ. of Pennsylvania.</div>
+    </div>
+
+    <div class="section-sep"><div class="sep-line"></div><div class="sep-label">Psicologia industrial</div><div class="sep-line"></div></div>
+
+    <div class="branch conn-colega" style="border-left: none; padding-left: 0;">
+      <div class="node">
+        <div class="n-name">Walter Dill Scott</div>
+        <div class="n-dates">1869–1955</div>
+        <div class="n-role role-discipulo">Aluno de Wundt</div>
+        <div class="n-note">Publicidade e seleção de pessoal. Pioneiro da psicologia do consumo.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Hugo Münsterberg</div>
+        <div class="n-dates">1863–1916</div>
+        <div class="n-role role-discipulo">Aluno de Wundt</div>
+        <div class="n-note">Psicologia forense, industrial e clínica. Convidado por William James para Harvard.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Lillian M. Gilbreth</div>
+        <div class="n-dates">1878–1972</div>
+        <div class="n-role role-colega">Engenharia humana</div>
+        <div class="n-note">Pioneira da ergonomia e psicologia do trabalho. Estudos de tempo e movimento.</div>
+      </div>
+    </div>
+
+    <div class="section-sep"><div class="sep-line"></div><div class="sep-label">Mulheres pioneiras</div><div class="sep-line"></div></div>
+
+    <div class="branch conn-colega" style="border-left: none; padding-left: 0;">
+      <div class="node">
+        <div class="n-name">Helen B. T. Woolley</div>
+        <div class="n-dates">1874–1947</div>
+        <div class="n-role role-colega">Pesquisadora</div>
+        <div class="n-note">Refutou a hipótese da variabilidade. 30 anos de pesquisa e orientação de psicólogas.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Leta S. Hollingworth</div>
+        <div class="n-dates">1886–1939</div>
+        <div class="n-role role-colega">Pesquisadora</div>
+        <div class="n-note">Desmentiu mitos sobre inferioridade feminina. Pesquisa sobre superdotação.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Mamie Phipps Clark</div>
+        <div class="n-dates">1917–1983</div>
+        <div class="n-role role-colega">Pesquisadora</div>
+        <div class="n-note">Estudos com bonecas sobre identidade racial. Influenciou a decisão da Suprema Corte (Brown v. Board).</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Anne Anastasi</div>
+        <div class="n-dates">1908–2001</div>
+        <div class="n-role role-colega">Pesquisadora</div>
+        <div class="n-note">"Mãe dos testes." Pioneira em psicometria e diferenças individuais.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════ -->
+<!-- HUMANISMO & COGNITIVA -->
+<!-- ═══════════════════════════════════════════ -->
+<div class="tree-section" id="sec-humanista">
+  <div class="tree-title">Psicologia Humanista & Revolução Cognitiva</div>
+  <div class="tree-desc">A "terceira força" (Maslow, Rogers) como reação ao behaviorismo e à psicanálise, seguida pela revolução cognitiva (Miller, Neisser) que domina a psicologia contemporânea.</div>
+
+  <div class="tree">
+    <div class="node" style="border-color: var(--gold);">
+      <div class="n-name">Abraham Maslow</div>
+      <div class="n-dates">1908–1970</div>
+      <div class="n-role role-fundador">Fundador — Psicologia Humanista</div>
+      <div class="n-note">Hierarquia das necessidades. Autorrealização. "Terceira força" na psicologia.</div>
+    </div>
+
+    <div class="branch conn-colega">
+      <div class="branch-label">Colega na psicologia humanista</div>
+      <div class="node">
+        <div class="n-name">Carl Rogers</div>
+        <div class="n-dates">1902–1987</div>
+        <div class="n-role role-colega">Co-líder do movimento</div>
+        <div class="n-note">Terapia centrada no cliente. Congruência. Consideração positiva incondicional.</div>
+      </div>
+    </div>
+
+    <div class="section-sep"><div class="sep-line"></div><div class="sep-label">Psicologia Positiva (herdeira)</div><div class="sep-line"></div></div>
+
+    <div class="branch conn-discipulo" style="border-left: none; padding-left: 0;">
+      <div class="node">
+        <div class="n-name">Martin Seligman</div>
+        <div class="n-dates">1942–2025</div>
+        <div class="n-role role-discipulo">Herdeiro da tradição humanista</div>
+        <div class="n-note">Desamparo aprendido. Fundou a Psicologia Positiva. Florescimento (flourishing).</div>
+      </div>
+    </div>
+
+    <div class="section-sep"><div class="sep-line"></div><div class="sep-label">Revolução Cognitiva</div><div class="sep-line"></div></div>
+
+    <div class="branch conn-discipulo" style="border-left: none; padding-left: 0;">
+      <div class="branch-label">Fundadores da Psicologia Cognitiva</div>
+      <div class="node" style="border-color: var(--gold);">
+        <div class="n-name">George Miller</div>
+        <div class="n-dates">1920–2012</div>
+        <div class="n-role role-fundador">Fundador — Psicologia Cognitiva</div>
+        <div class="n-note">"O mágico número sete" (1956). Centro de Estudos Cognitivos em Harvard.</div>
+      </div>
+      <div class="node" style="border-color: var(--gold);">
+        <div class="n-name">Ulric Neisser</div>
+        <div class="n-dates">1928–2012</div>
+        <div class="n-role role-fundador">Nomeou o campo</div>
+        <div class="n-note">Cognitive Psychology (1967): livro que deu nome ao campo. Depois criticou o próprio movimento.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Jean Piaget</div>
+        <div class="n-dates">1896–1980</div>
+        <div class="n-role role-influencia">Influência na cognição</div>
+        <div class="n-note">Epistemologia genética. Estágios do desenvolvimento cognitivo. Influenciou a revolução cognitiva.</div>
+      </div>
+      <div class="node">
+        <div class="n-name">Alan Turing</div>
+        <div class="n-dates">1912–1954</div>
+        <div class="n-role role-influencia">Influência computacional</div>
+        <div class="n-note">Máquina de Turing. Teste de Turing. Forneceu a metáfora computacional para a mente.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /tree-view -->
+
+<script>
+function showSection(id) {
+  document.querySelectorAll('.tree-section').forEach(s => s.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('sec-' + id).classList.add('active');
+  event.target.classList.add('active');
+  document.getElementById('searchInput').value = '';
+  clearHighlights();
+  window.scrollTo({ top: 160, behavior: 'smooth' });
+}
+
+function handleSearch(query) {
+  clearHighlights();
+  if (!query || query.length < 2) return;
+
+  const q = query.toLowerCase();
+  let found = false;
+
+  document.querySelectorAll('.tree-section').forEach(sec => {
+    const names = sec.querySelectorAll('.n-name');
+    names.forEach(n => {
+      if (n.textContent.toLowerCase().includes(q)) {
+        // Activate this section
+        if (!found) {
+          document.querySelectorAll('.tree-section').forEach(s => s.classList.remove('active'));
+          document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+          sec.classList.add('active');
+          found = true;
+        }
+        // Highlight
+        const node = n.closest('.node');
+        node.style.borderColor = 'var(--gold)';
+        node.style.boxShadow = '0 0 24px rgba(201,168,76,0.3)';
+        setTimeout(() => {
+          node.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
+    });
+  });
+}
+
+function clearHighlights() {
+  document.querySelectorAll('.node').forEach(n => {
+    n.style.borderColor = '';
+    n.style.boxShadow = '';
+  });
+}
+</script>
+
+</body>
+</html>
